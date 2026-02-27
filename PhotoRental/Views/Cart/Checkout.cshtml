@@ -3,119 +3,99 @@
     ViewData["Title"] = "Оформление заказа";
 }
 
-<!-- Подключаем CSS -->
 <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
 <section class="checkout-container">
     <div class="container-custom">
         <h1 class="page-title">Оформление заказа</h1>
-        
+
         <form asp-action="Create" asp-controller="Booking" method="post" id="checkoutForm">
             @Html.AntiForgeryToken()
-            
+            <div asp-validation-summary="ModelOnly" class="error-message" style="display:block;"></div>
+
             <div class="checkout-grid">
                 <div>
-                    <!-- Контактная информация -->
                     <div class="checkout-section">
                         <h3 class="section-title">Контактная информация</h3>
-                        
+
                         <div class="form-group">
-                            <label class="form-label">Имя *</label>
-                            <input type="text" name="CustomerName" class="form-input" required
-                                   value="@Model.CustomerName" id="customerName">
+                            <label asp-for="CustomerName" class="form-label"></label>
+                            <input asp-for="CustomerName" class="form-input" id="customerName" />
+                            <span asp-validation-for="CustomerName" class="error-message"></span>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label class="form-label">Телефон *</label>
-                            <input type="tel" name="CustomerPhone" class="form-input" required
-                                   placeholder="+7 (999) 123-45-67" value="@Model.CustomerPhone" id="customerPhone">
+                            <label asp-for="CustomerPhone" class="form-label"></label>
+                            <input asp-for="CustomerPhone" class="form-input" id="customerPhone" placeholder="+7 (999) 123-45-67" />
+                            <span asp-validation-for="CustomerPhone" class="error-message"></span>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label class="form-label">Email *</label>
-                            <input type="email" name="CustomerEmail" class="form-input" required
-                                   placeholder="example@mail.com" value="@Model.CustomerEmail" id="customerEmail">
+                            <label asp-for="CustomerEmail" class="form-label"></label>
+                            <input asp-for="CustomerEmail" class="form-input" id="customerEmail" placeholder="example@mail.com" />
+                            <span asp-validation-for="CustomerEmail" class="error-message"></span>
                         </div>
                     </div>
 
-                    <!-- Даты аренды -->
                     <div class="checkout-section">
                         <h3 class="section-title">Период аренды</h3>
-                        
+
                         <div class="dates-grid">
                             <div class="date-field">
-                                <label>Дата начала *</label>
-                                <input type="date" id="startDate" name="StartDate"
-                                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
-                                       value="@Model.StartDate.ToString("yyyy-MM-dd")" required>
+                                <label asp-for="StartDate"></label>
+                                <input asp-for="StartDate" type="date" id="startDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="StartDate" class="error-message"></span>
                             </div>
-                            
+
                             <div class="date-field">
-                                <label>Дата окончания *</label>
-                                <input type="date" id="endDate" name="EndDate"
-                                       min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
-                                       value="@Model.EndDate.ToString("yyyy-MM-dd")" required>
+                                <label asp-for="EndDate"></label>
+                                <input asp-for="EndDate" type="date" id="endDate" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="EndDate" class="error-message"></span>
                             </div>
                         </div>
-                        
+
                         <div class="rental-days">
                             <span>Количество дней аренды:</span>
                             <span id="rentalDays">@Model.Days</span>
                         </div>
-                        
+
                         <div class="rental-days highlight">
                             <span>Стоимость аренды:</span>
                             <span id="rentalCost">@Model.RentalCost.ToString("C2")</span>
                         </div>
-                        
+
                         <div id="dateError" class="error-message"></div>
                     </div>
 
-                    <!-- Способ получения -->
                     <div class="checkout-section">
                         <h3 class="section-title">Способ получения</h3>
-                        
+
                         <div class="options-container">
-                            <!-- Опция доставки -->
                             <label class="pickup-option @(Model.DeliveryType == "delivery" ? "selected" : "")">
-                                <input type="radio" name="DeliveryType" value="delivery"
-                                @(Model.DeliveryType == "delivery" ? "checked" : "")>
+                                <input type="radio" name="DeliveryType" value="delivery" @(Model.DeliveryType == "delivery" ? "checked" : "")>
                                 <span>Доставка курьером</span>
                                 <span class="pickup-address">+500 ₽</span>
                             </label>
-                            
-                            <!-- Опция самовывоза -->
+
                             <label class="pickup-option @(Model.DeliveryType == "pickup" ? "selected" : "")">
-                                <input type="radio" name="DeliveryType" value="pickup"
-                                @(Model.DeliveryType == "pickup" ? "checked" : "")>
+                                <input type="radio" name="DeliveryType" value="pickup" @(Model.DeliveryType == "pickup" ? "checked" : "")>
                                 <span>Самовывоз</span>
                                 <span class="pickup-address">Бесплатно</span>
                             </label>
                         </div>
-                        
-                        <!-- Блок для доставки -->
+
                         <div id="deliveryBlock" style="display: @(Model.DeliveryType == "delivery" ? "block" : "none");">
-                            <label class="form-label">Адрес доставки *</label>
+                            <label class="form-label" asp-for="Address"></label>
                             <div class="address-search">
-                                <input type="text" id="addressInput" name="Address"
-                                       placeholder="Введите адрес" value="@Model.Address" autocomplete="off">
+                                <input asp-for="Address" id="addressInput" class="form-input" placeholder="Введите адрес" autocomplete="off" />
+                                <span asp-validation-for="Address" class="error-message"></span>
                             </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Квартира/офис</label>
-                                <input type="text" name="Apartment" class="form-input"
-                                       placeholder="№ квартиры, офиса" value="@Model.Apartment">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">Комментарий для курьера</label>
-                                <textarea name="CourierComment" rows="2" class="form-input"
-                                          placeholder="Домофон, этаж, особенности проезда...">@Model.CourierComment</textarea>
-                            </div>
+
+                            <input asp-for="Apartment" class="form-input" placeholder="№ квартиры, офиса" />
+                            <input asp-for="CourierComment" class="form-input" placeholder="Комментарий курьеру" />
                         </div>
-                        
-                        <!-- Блок для самовывоза -->
+
                         <div id="pickupBlock" style="display: @(Model.DeliveryType == "pickup" ? "block" : "none");">
                             <div class="pickup-info">
                                 <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Тверская, 15</p>
@@ -125,38 +105,33 @@
                         </div>
                     </div>
 
-                    <!-- Способ оплаты -->
                     <div class="checkout-section">
                         <h3 class="section-title">Способ оплаты</h3>
-                        
                         <div class="options-container">
-                            <label class="payment-option selected">
-                                <input type="radio" name="PaymentMethod" value="card" checked>
+                            <label class="payment-option">
+                                <input type="radio" name="PaymentMethod" value="card" @(Model.PaymentMethod == "card" ? "checked" : "")>
                                 <span>Банковской картой</span>
                                 <span class="payment-info">Онлайн</span>
                             </label>
-                            
+
                             <label class="payment-option">
-                                <input type="radio" name="PaymentMethod" value="cash">
+                                <input type="radio" name="PaymentMethod" value="cash" @(Model.PaymentMethod == "cash" ? "checked" : "")>
                                 <span>Наличными</span>
                                 <span class="payment-info">При получении</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Комментарий к заказу -->
                     <div class="checkout-section">
                         <h3 class="section-title">Дополнительно</h3>
-                        <textarea name="Comment" rows="4" class="form-input"
-                                  placeholder="Особые пожелания, удобное время доставки и т.д.">@Model.Comment</textarea>
+                        <textarea asp-for="Comment" rows="4" class="form-input" placeholder="Особые пожелания"></textarea>
                     </div>
                 </div>
-                
-                <!-- Ваш заказ -->
+
                 <div>
                     <div class="checkout-section">
                         <h3 class="section-title">Ваш заказ</h3>
-                        
+
                         @foreach (var item in Model.Items)
                         {
                             <div class="order-item">
@@ -167,36 +142,33 @@
                                         <p>@item.Quantity шт. × @item.PricePerDay.ToString("C2")/день</p>
                                     </div>
                                 </div>
-                                <div class="order-item-price">
-                                    @((item.PricePerDay * item.Quantity).ToString("C2"))
-                                </div>
+                                <div class="order-item-price">@((item.PricePerDay * item.Quantity).ToString("C2"))</div>
                             </div>
                         }
-                        
+
                         <div class="total-row">
                             <span>Товары (@Model.TotalItems шт.):</span>
-                            <span>@Model.TotalAmount.ToString("C2")</span>
+                            <span>@Model.ItemsTotal.ToString("C2")</span>
                         </div>
-                        
+
                         <div class="total-row" id="deliveryCostRow">
                             <span>Доставка:</span>
                             <span id="deliveryCost">@Model.DeliveryCost.ToString("C2")</span>
                         </div>
-                        
+
                         <div class="total-row grand-total">
                             <span>Итого:</span>
                             <span id="totalAmount">@Model.GrandTotal.ToString("C2")</span>
                         </div>
-                        
-                        <!-- Скрытые поля для отправки на сервер -->
-                        <!-- Скрытые поля для отправки на сервер -->
-                        <input type="hidden" name="Days" id="hiddenRentalDays" value="@Model.Days" />
-                        <input type="hidden" name="DeliveryCost" id="hiddenDeliveryCost" value="@Model.DeliveryCost" />
-                        <input type="hidden" name="TotalAmount" id="hiddenTotalAmount" value="@Model.GrandTotal" />
+
+                        <input type="hidden" asp-for="Days" id="hiddenRentalDays" />
+                        <input type="hidden" asp-for="DeliveryCost" id="hiddenDeliveryCost" />
+                        <input type="hidden" asp-for="TotalAmount" id="hiddenTotalAmount" />
+
                         <button type="submit" class="confirm-btn" id="submitBtn">
                             <i class="fas fa-check-circle"></i> Подтвердить заказ
                         </button>
-                        
+
                         <p class="terms-text">
                             <i class="fas fa-info-circle"></i> Нажимая кнопку, вы соглашаетесь с условиями аренды
                         </p>
@@ -208,177 +180,103 @@
 </section>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Страница загружена');
-            
-            // Получаем элементы
+        document.addEventListener('DOMContentLoaded', function () {
             const startDate = document.getElementById('startDate');
             const endDate = document.getElementById('endDate');
             const rentalDaysSpan = document.getElementById('rentalDays');
             const rentalCostSpan = document.getElementById('rentalCost');
             const deliveryCostSpan = document.getElementById('deliveryCost');
             const totalAmountSpan = document.getElementById('totalAmount');
-            const hiddenTotal = document.getElementById('hiddenTotalAmount');
             const hiddenDays = document.getElementById('hiddenRentalDays');
             const hiddenDelivery = document.getElementById('hiddenDeliveryCost');
+            const hiddenTotal = document.getElementById('hiddenTotalAmount');
             const deliveryBlock = document.getElementById('deliveryBlock');
             const pickupBlock = document.getElementById('pickupBlock');
             const addressInput = document.getElementById('addressInput');
-            
-            // Базовая стоимость за день (сумма всех товаров)
-            const baseDailyAmount = @Model.TotalAmount;
-            
-            console.log('Базовая стоимость за день:', baseDailyAmount);
-            
-            // Форматирование валюты
+            const dateError = document.getElementById('dateError');
+            const submitBtn = document.getElementById('submitBtn');
+            const baseDailyAmount = @Model.ItemsTotal;
+
             function formatCurrency(amount) {
                 return new Intl.NumberFormat('ru-RU', {
                     style: 'currency',
                     currency: 'RUB',
-                    minimumFractionDigits: 0,
                     maximumFractionDigits: 0
                 }).format(amount);
             }
-            
-            // Расчёт дней
+
             function calculateDays() {
                 if (!startDate.value || !endDate.value) return 0;
-                
                 const start = new Date(startDate.value);
                 const end = new Date(endDate.value);
-                
                 start.setHours(0, 0, 0, 0);
                 end.setHours(0, 0, 0, 0);
-                
-                const diffTime = end - start;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                return diffDays > 0 ? diffDays : 0;
+                return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
             }
-            
-            // Обновление всех цен
-                    // Обновление всех цен
-        function updatePrices() {
-            const days = calculateDays();
-            console.log('Дней:', days);
-    
-            if (days < 1) {
-                document.getElementById('dateError').textContent = 'Дата окончания должна быть позже даты начала';
-                document.getElementById('dateError').style.display = 'block';
-                document.getElementById('submitBtn').disabled = true;
-                return;
-            } else {
-                document.getElementById('dateError').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
-            }
-    
-            // Обновляем количество дней
-            rentalDaysSpan.textContent = days;
-            if (hiddenDays) hiddenDays.value = days;
-    
-            // Стоимость аренды
-            const rentCost = baseDailyAmount * days;
-            rentalCostSpan.textContent = formatCurrency(rentCost);
-    
-            // Стоимость доставки
-            const selectedDelivery = document.querySelector('input[name="DeliveryType"]:checked');
-            const deliveryType = selectedDelivery ? selectedDelivery.value : 'pickup';
-            const deliveryPrice = deliveryType === 'delivery' ? 500 : 0;
-    
-            deliveryCostSpan.textContent = formatCurrency(deliveryPrice);
-            if (hiddenDelivery) hiddenDelivery.value = deliveryPrice;
-    
-            // Итого
-            const total = rentCost + deliveryPrice;
-            totalAmountSpan.textContent = formatCurrency(total);
-            if (hiddenTotal) hiddenTotal.value = total;
-        }
-            
-            // Переключение блоков доставки
-            function toggleDeliveryBlocks() {
-                const selectedDelivery = document.querySelector('input[name="DeliveryType"]:checked');
-                
-                if (selectedDelivery) {
-                    const type = selectedDelivery.value;
-                    
-                    // Обновляем классы
-                    document.querySelectorAll('.pickup-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    selectedDelivery.closest('.pickup-option').classList.add('selected');
-                    
-                    // Показываем/скрываем блоки
-                    if (type === 'delivery') {
-                        deliveryBlock.style.display = 'block';
-                        pickupBlock.style.display = 'none';
-                        if (addressInput) addressInput.required = true;
-                    } else {
-                        deliveryBlock.style.display = 'none';
-                        pickupBlock.style.display = 'block';
-                        if (addressInput) addressInput.required = false;
-                    }
-                    
-                    updatePrices();
+
+            function updateSummary() {
+                const days = calculateDays();
+                if (days < 1) {
+                    dateError.textContent = 'Дата окончания должна быть позже даты начала';
+                    dateError.style.display = 'block';
+                    submitBtn.disabled = true;
+                    return;
                 }
+
+                dateError.style.display = 'none';
+                submitBtn.disabled = false;
+
+                const deliveryType = document.querySelector('input[name="DeliveryType"]:checked')?.value ?? 'pickup';
+                const delivery = deliveryType === 'delivery' ? 500 : 0;
+                const rentalCost = baseDailyAmount * days;
+
+                rentalDaysSpan.textContent = days;
+                rentalCostSpan.textContent = formatCurrency(rentalCost);
+                deliveryCostSpan.textContent = formatCurrency(delivery);
+                totalAmountSpan.textContent = formatCurrency(rentalCost + delivery);
+
+                hiddenDays.value = days;
+                hiddenDelivery.value = delivery;
+                hiddenTotal.value = rentalCost + delivery;
             }
-            
-            // Слушатели для радио-кнопок доставки
-            document.querySelectorAll('input[name="DeliveryType"]').forEach(radio => {
-                radio.addEventListener('change', toggleDeliveryBlocks);
-            });
-            
-            // Слушатели для дат
-            startDate.addEventListener('change', function() {
+
+            function toggleDelivery() {
+                const deliveryType = document.querySelector('input[name="DeliveryType"]:checked')?.value;
+
+                document.querySelectorAll('.pickup-option').forEach(el => el.classList.remove('selected'));
+                const selected = document.querySelector(`input[name="DeliveryType"][value="${deliveryType}"]`)?.closest('.pickup-option');
+                selected?.classList.add('selected');
+
+                if (deliveryType === 'delivery') {
+                    deliveryBlock.style.display = 'block';
+                    pickupBlock.style.display = 'none';
+                    addressInput.required = true;
+                } else {
+                    deliveryBlock.style.display = 'none';
+                    pickupBlock.style.display = 'block';
+                    addressInput.required = false;
+                }
+
+                updateSummary();
+            }
+
+            startDate.addEventListener('change', function () {
                 const start = new Date(this.value);
                 start.setDate(start.getDate() + 1);
                 endDate.min = start.toISOString().split('T')[0];
-                
-                if (endDate.value && new Date(endDate.value) < new Date(endDate.min)) {
+                if (endDate.value && endDate.value < endDate.min) {
                     endDate.value = endDate.min;
                 }
-                
-                updatePrices();
+                updateSummary();
             });
-            
-            endDate.addEventListener('change', updatePrices);
-            
-            // Валидация перед отправкой
-            document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-                const selectedDelivery = document.querySelector('input[name="DeliveryType"]:checked');
-                
-                if (selectedDelivery && selectedDelivery.value === 'delivery') {
-                    const address = addressInput.value.trim();
-                    if (!address) {
-                        e.preventDefault();
-                        alert('Пожалуйста, введите адрес доставки');
-                        addressInput.focus();
-                        return;
-                    }
-                }
-                
-                const name = document.getElementById('customerName').value.trim();
-                const phone = document.getElementById('customerPhone').value.trim();
-                const email = document.getElementById('customerEmail').value.trim();
-                
-                if (!name || !phone || !email) {
-                    e.preventDefault();
-                    alert('Пожалуйста, заполните все контактные данные');
-                    return;
-                }
-                
-                console.log('Форма отправляется...');
-            });
-            
-            // Устанавливаем минимальную дату окончания при загрузке
-            if (startDate.value) {
-                const start = new Date(startDate.value);
-                start.setDate(start.getDate() + 1);
-                endDate.min = start.toISOString().split('T')[0];
-            }
-            
-            // Первоначальное обновление
-            setTimeout(updatePrices, 100);
+
+            endDate.addEventListener('change', updateSummary);
+            document.querySelectorAll('input[name="DeliveryType"]').forEach(el => el.addEventListener('change', toggleDelivery));
+
+            toggleDelivery();
+            updateSummary();
         });
     </script>
 }

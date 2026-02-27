@@ -13,6 +13,7 @@
         
         <form asp-action="Create" asp-controller="Booking" method="post" id="checkoutForm">
             @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="error-message" style="display:block;"></div>
             
             <div class="checkout-grid">
                 <div>
@@ -131,13 +132,13 @@
                         
                         <div class="options-container">
                             <label class="payment-option selected">
-                                <input type="radio" name="PaymentMethod" value="card" checked>
+                                <input type="radio" name="PaymentMethod" value="card" @(Model.PaymentMethod == "card" ? "checked" : "")>
                                 <span>Банковской картой</span>
                                 <span class="payment-info">Онлайн</span>
                             </label>
                             
                             <label class="payment-option">
-                                <input type="radio" name="PaymentMethod" value="cash">
+                                <input type="radio" name="PaymentMethod" value="cash" @(Model.PaymentMethod == "cash" ? "checked" : "")>
                                 <span>Наличными</span>
                                 <span class="payment-info">При получении</span>
                             </label>
@@ -175,7 +176,7 @@
                         
                         <div class="total-row">
                             <span>Товары (@Model.TotalItems шт.):</span>
-                            <span>@Model.TotalAmount.ToString("C2")</span>
+                            <span>@Model.ItemsTotal.ToString("C2")</span>
                         </div>
                         
                         <div class="total-row" id="deliveryCostRow">
@@ -227,7 +228,7 @@
             const addressInput = document.getElementById('addressInput');
             
             // Базовая стоимость за день (сумма всех товаров)
-            const baseDailyAmount = @Model.TotalAmount;
+            const baseDailyAmount = @Model.ItemsTotal;
             
             console.log('Базовая стоимость за день:', baseDailyAmount);
             

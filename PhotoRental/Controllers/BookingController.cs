@@ -45,59 +45,45 @@ namespace PhotoRental.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CheckoutViewModel model)
         {
-            Console.WriteLine("=== НАЧАЛО ОБРАБОТКИ ЗАКАЗА ===");
-            Console.WriteLine($"StartDate: {model.StartDate}");
-            Console.WriteLine($"EndDate: {model.EndDate}");
-            Console.WriteLine($"Days: {model.Days}");
-            Console.WriteLine($"DeliveryType: {model.DeliveryType}");
-            Console.WriteLine($"Address: {model.Address}");
-            Console.WriteLine($"PaymentMethod: {model.PaymentMethod}");
-            Console.WriteLine($"Items count: {model.Items?.Count ?? 0}");
-
-            // Проверяем, авторизован ли пользователь
-            if (!User.Identity.IsAuthenticated)
+            if (!User.Identity!.IsAuthenticated)
             {
-                Console.WriteLine("Пользователь не авторизован");
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Cart/Checkout" });
             }
 
-            // Проверяем валидность модели
-            if (!ModelState.IsValid)
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var cart = await GetUserCartAsync(userId);
+
+            if (cart == null || !cart.CartItems.Any())
             {
-                Console.WriteLine("Модель невалидна");
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                foreach (var error in errors)
-                {
-                    Console.WriteLine($"Ошибка: {error}");
-                }
-                return View("Checkout", model);
+                TempData["ErrorMessage"] = "Корзина пуста. Добавьте товары перед оформлением заказа.";
+                return RedirectToAction("Index", "Cart");
             }
 
-            // Проверяем, есть ли товары
-            if (model.Items == null || !model.Items.Any())
+            HydrateCheckoutFromCart(model, cart);
+
+            if (!ModelState.IsValid)
             {
-                Console.WriteLine("Корзина пуста");
-                return RedirectToAction("Index", "Cart");
+                return View("~/Views/Cart/Checkout.cshtml", model);
+            }
+
+            if (model.Days < 1)
+            {
+                ModelState.AddModelError(string.Empty, "Период аренды указан некорректно.");
+                return View("~/Views/Cart/Checkout.cshtml", model);
             }
 
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                Console.WriteLine($"UserId: {userId}");
-
-                List<Booking> createdBookings = new List<Booking>();
+                List<Booking> createdBookings = new();
 
                 // Проверяем доступность товаров на эти даты
                 foreach (var item in model.Items)
                 {
-                    Console.WriteLine($"Проверка товара {item.ProductId} - {item.ProductName}");
-
                     var isAvailable = await CheckAvailability(item.ProductId, model.StartDate, model.EndDate);
                     if (!isAvailable)
                     {
-                        Console.WriteLine($"Товар {item.ProductName} недоступен");
                         ModelState.AddModelError("", $"Товар {item.ProductName} недоступен на выбранные даты");
-                        return View("Checkout", model);
+                        return View("~/Views/Cart/Checkout.cshtml", model);
                     }
                 }
 
@@ -107,12 +93,10 @@ namespace PhotoRental.Controllers
                     var product = await _context.Products.FindAsync(item.ProductId);
                     if (product == null)
                     {
-                        Console.WriteLine($"Товар {item.ProductId} не найден");
                         continue;
                     }
 
                     var totalPrice = item.PricePerDay * model.Days * item.Quantity;
-                    Console.WriteLine($"Создание брони: {item.ProductName}, дней: {model.Days}, цена: {totalPrice}");
 
                     var booking = new Booking
                     {
@@ -127,6 +111,7 @@ namespace PhotoRental.Controllers
                         Notes = $"Имя: {model.CustomerName}\n" +
                                $"Телефон: {model.CustomerPhone}\n" +
                                $"Email: {model.CustomerEmail}\n" +
+                               $"Количество: {item.Quantity}\n" +
                                $"Способ получения: {(model.DeliveryType == "delivery" ? "Доставка" : "Самовывоз")}\n" +
                                $"Адрес доставки: {model.Address} {model.Apartment}\n" +
                                $"Комментарий курьеру: {model.CourierComment}\n" +
@@ -140,18 +125,12 @@ namespace PhotoRental.Controllers
 
                 // Сохраняем в БД
                 await _context.SaveChangesAsync();
-                Console.WriteLine($"Сохранено {createdBookings.Count} бронирований");
 
                 // Очищаем корзину
-                var cart = await _context.Carts
-                    .Include(c => c.CartItems)
-                    .FirstOrDefaultAsync(c => c.UserId == userId);
-
-                if (cart != null && cart.CartItems != null && cart.CartItems.Any())
+                if (cart.CartItems.Any())
                 {
                     _context.CartItems.RemoveRange(cart.CartItems);
                     await _context.SaveChangesAsync();
-                    Console.WriteLine("Корзина очищена");
                 }
 
                 // Получаем первое созданное бронирование для отображения на странице ThankYou
@@ -166,21 +145,17 @@ namespace PhotoRental.Controllers
 
                     if (bookingWithProduct != null)
                     {
-                        Console.WriteLine($"Редирект на ThankYou с ID: {bookingWithProduct.Id}");
                         TempData["SuccessMessage"] = "Спасибо за аренду! Ваш заказ успешно оформлен.";
-                        return View("ThankYou", bookingWithProduct);
+                        return RedirectToAction(nameof(ThankYou), new { id = bookingWithProduct.Id });
                     }
                 }
 
-                Console.WriteLine("Редирект на главную (нет бронирований)");
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ОШИБКА: {ex.Message}");
-                Console.WriteLine($"СТЕК: {ex.StackTrace}");
                 ModelState.AddModelError("", "Произошла ошибка при оформлении заказа: " + ex.Message);
-                return View("Checkout", model);
+                return View("~/Views/Cart/Checkout.cshtml", model);
             }
         }
 
@@ -205,13 +180,41 @@ namespace PhotoRental.Controllers
         {
             var conflictingBookings = await _context.Bookings
                 .Where(b => b.ProductId == productId &&
-                       b.Status != "cancelled" &&
+                       b.Status.ToLower() != "cancelled" &&
                        ((b.StartDate <= startDate && b.EndDate > startDate) ||
                         (b.StartDate < endDate && b.EndDate >= endDate) ||
                         (b.StartDate >= startDate && b.EndDate <= endDate)))
                 .AnyAsync();
 
             return !conflictingBookings;
+        }
+
+        private async Task<Cart?> GetUserCartAsync(int userId)
+        {
+            return await _context.Carts
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.Product)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+        }
+
+        private static void HydrateCheckoutFromCart(CheckoutViewModel model, Cart cart)
+        {
+            model.Items = cart.CartItems
+                .Select(ci => new CartItemViewModel
+                {
+                    CartItemId = ci.Id,
+                    ProductId = ci.ProductId,
+                    ProductName = ci.Product.Name,
+                    ImageUrl = ci.Product.ImageUrl,
+                    PricePerDay = ci.Product.PricePerDay,
+                    Quantity = ci.Quantity,
+                    AddedAt = ci.AddedAt
+                })
+                .ToList();
+
+            model.Days = Math.Max(1, (model.EndDate - model.StartDate).Days);
+            model.DeliveryCost = model.DeliveryType == "delivery" ? 500 : 0;
+            model.TotalAmount = model.ItemsTotal * model.Days + model.DeliveryCost;
         }
 
         // Список бронирований пользователя

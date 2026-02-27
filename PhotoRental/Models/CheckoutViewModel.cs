@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PhotoRental.Models
 {
-    public class CheckoutViewModel
+    public class CheckoutViewModel : IValidatableObject
     {
         public List<CartItemViewModel> Items { get; set; } = new();
 
@@ -61,5 +61,22 @@ namespace PhotoRental.Models
         public decimal ItemsTotal => Items.Sum(i => i.TotalPrice);
         public decimal RentalCost => ItemsTotal * Days;
         public decimal GrandTotal => RentalCost + DeliveryCost;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (EndDate <= StartDate)
+            {
+                yield return new ValidationResult(
+                    "Дата окончания должна быть позже даты начала.",
+                    new[] { nameof(StartDate), nameof(EndDate) });
+            }
+
+            if (DeliveryType == "delivery" && string.IsNullOrWhiteSpace(Address))
+            {
+                yield return new ValidationResult(
+                    "Укажите адрес доставки.",
+                    new[] { nameof(Address) });
+            }
+        }
     }
 }

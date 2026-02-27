@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoRental | Аренда фото- и видеотехники</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <i class="fas fa-camera"></i>
+                    <span>PhotoRental</span>
+                </div>
+                <div class="nav-menu">
+                    <a href="/" class="active">Главная</a>
+                    <a href="/catalog.html">Каталог</a>
+                    <a href="/how-it-works.html">Как это работает</a>
+                    <a href="/contacts.html">Контакты</a>
+                </div>
+                <div class="nav-auth">
+                    <a href="/login.html" class="btn-outline">Войти</a>
+                    <a href="/register.html" class="btn-primary">Регистрация</a>
+                </div>
+                <div class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero секция -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Аренда профессиональной <span>фото- и видеотехники</span></h1>
+                    <p>Более 500 единиц техники: камеры, объективы, свет, стабилизация и звук. Доставка по всей России.</p>
+                    <div class="hero-buttons">
+                        <a href="/catalog.html" class="btn-primary btn-large">
+                            <i class="fas fa-search"></i>
+                            Перейти в каталог
+                        </a>
+                        <a href="/how-it-works.html" class="btn-outline btn-large">
+                            <i class="fas fa-play"></i>
+                            Как это работает
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Единиц техники</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Поддержка</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">Довольных клиентов</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Камера">
+                    <div class="hero-badge">
+                        <i class="fas fa-check-circle"></i>
+                        Профессиональное оборудование
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Категории -->
+    <section class="categories">
+        <div class="container">
+            <div class="section-header">
+                <h2>Популярные категории</h2>
+                <p>Выберите необходимое оборудование</p>
+            </div>
+            <div class="category-grid">
+                @foreach (var category in Model.Categories)
+                {
+                <div class="category-card" data-category="@category.Name.ToLower()">
+                    <div class="category-icon">
+                        <i class="fas fa-camera-retro"></i> <!-- Используйте соответствующую иконку -->
+                    </div>
+                    <h3>@category.Name</h3>
+                    <p>@category.Description</p>
+                    <span class="category-link">Смотреть <i class="fas fa-arrow-right"></i></span>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Популярные товары -->
+    <section class="featured">
+        <div class="container">
+            <div class="section-header">
+                <h2>Популярное оборудование</h2>
+                <p>Самое востребованное у наших клиентов</p>
+            </div>
+            <div class="products-grid">
+                @foreach (var product in Model.FeaturedProducts)
+                {
+                <div class="product-card">
+                    <img src="@product.ImageUrl" alt="@product.Name" />
+                    <h3>@product.Name</h3>
+                    <p>@product.Description</p>
+                    <div class="price">
+                        <span>@product.PricePerDay.ToString("C2")/день</span>
+                    </div>
+                    <a href="/products/details/@product.Id" class="btn-primary">Подробнее</a>
+                </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Преимущества, отзывы, футер и остальной контент -->
+    <!-- Остальной код остается без изменений -->
+
+    <script src="~/js/main.js"></script>
+</body>
+</html>

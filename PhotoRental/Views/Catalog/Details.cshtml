@@ -1,0 +1,265 @@
+﻿@using PhotoRental.Models
+@model PhotoRental.Models.Product
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = Model.Name;
+    
+    // Получаем список дополнительных изображений
+    var additionalImages = new List<string>();
+    if (!string.IsNullOrEmpty(Model.AdditionalImages))
+    {
+        try
+        {
+            additionalImages = JsonSerializer.Deserialize<List<string>>(Model.AdditionalImages) ?? new List<string>();
+        }
+        catch
+        {
+            additionalImages = new List<string>();
+        }
+    }
+}
+
+<!-- Убираем Swiper, если не используется -->
+<!-- Подключаем только Font Awesome (он уже может быть в _Layout) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<section class="product-details" style="padding: 120px 0 60px;">
+    <div class="container">
+        <!-- Хлебные крошки -->
+        <div class="breadcrumbs" style="margin-bottom: 30px;">
+            <a href="@Url.Action("Index")" style="color: #666; text-decoration: none;">Каталог</a>
+            <i class="fas fa-chevron-right" style="margin: 0 10px; color: #999; font-size: 12px;"></i>
+            <a href="@Url.Action("Index", new { categoryId = Model.CategoryId })" style="color: #666; text-decoration: none;">@Model.Category?.Name</a>
+            <i class="fas fa-chevron-right" style="margin: 0 10px; color: #999; font-size: 12px;"></i>
+            <span style="color: #ff5b00;">@Model.Name</span>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px;">
+            <!-- Галерея изображений -->
+            <div>
+                <!-- Главное изображение с ленивой загрузкой -->
+                <div style="position: relative; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1); margin-bottom: 15px; background: #f5f5f5; min-height: 400px;">
+                    <img id="mainImage" 
+                         src="@(Model.ImageUrl ?? "https://via.placeholder.com/600x400")"
+                         alt="@Model.Name"
+                         loading="lazy"
+                         style="width: 100%; height: 400px; object-fit: cover; display: block;" 
+                         onerror="this.src='https://via.placeholder.com/600x400'; this.onerror=null;" />
+                </div>
+                
+                <!-- Миниатюры с ленивой загрузкой -->
+                @if (additionalImages.Any())
+                {
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <!-- Главное фото как первая миниатюра -->
+                        <div style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid #ff5b00;" 
+                             onclick="changeMainImage('@(Model.ImageUrl ?? "https://via.placeholder.com/600x400")', this)">
+                            <img src="@(Model.ImageUrl ?? "https://via.placeholder.com/600x400")" 
+                                 alt="Главное"
+                                 loading="lazy"
+                                 style="width: 100%; height: 70px; object-fit: cover; display: block;"
+                                 onerror="this.src='https://via.placeholder.com/100x70'; this.onerror=null;" />
+                        </div>
+                        
+                        @foreach (var img in additionalImages.Take(8)) // Ограничиваем до 8 миниатюр
+                        {
+                            <div style="cursor: pointer; border-radius: 8px; overflow: hidden; border: 2px solid transparent;" 
+                                 onclick="changeMainImage('@img', this)">
+                                <img src="@img" 
+                                     alt="Дополнительное"
+                                     loading="lazy"
+                                     style="width: 100%; height: 70px; object-fit: cover; display: block;"
+                                     onerror="this.src='https://via.placeholder.com/100x70'; this.onerror=null;" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            
+            <!-- Информация о товаре -->
+            <div>
+                <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 10px;">@Model.Name</h1>
+                <p style="font-size: 18px; color: #666; margin-bottom: 20px;">@Model.Brand @Model.Model</p>
+                
+                <!-- Рейтинг -->
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 5px;">
+                        @{
+                            var avgRating = (Model.Reviews != null && Model.Reviews.Any())
+                                ? Math.Round(Model.Reviews.Average(r => r.Rating), 1)
+                                : 0;
+                        }
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= avgRating)
+                            {
+                                <i class="fas fa-star" style="color: #ffc107;"></i>
+                            }
+                            else
+                            {
+                                <i class="far fa-star" style="color: #ddd;"></i>
+                            }
+                        }
+                    </div>
+                    <span style="color: #666;">@(Model.Reviews?.Count ?? 0) отзывов</span>
+                </div>
+                
+                <!-- Цена -->
+                <div style="background: #f8f9fa; border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="color: #666;">Цена за день:</span>
+                            <span style="font-size: 32px; font-weight: 700; color: #ff5b00; margin-left: 10px;">
+                                @Model.PricePerDay.ToString("C2")
+                            </span>
+                        </div>
+                        @if (Model.PricePerWeek.HasValue)
+                        {
+                            <div style="text-align: right;">
+                                <span style="color: #666;">За неделю:</span>
+                                <span style="font-size: 24px; font-weight: 600; color: #333; display: block;">
+                                    @Model.PricePerWeek.Value.ToString("C2")
+                                </span>
+                            </div>
+                        }
+                    </div>
+                    <p style="margin-top: 15px; color: #999; font-size: 14px;">
+                        <i class="fas fa-info-circle"></i> Залог: @Model.Deposit.ToString("C2")
+                    </p>
+                </div>
+                
+                <!-- Описание -->
+                <div style="margin-bottom: 25px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">Описание</h3>
+                    <div id="descriptionContainer" style="position: relative;">
+                        <div id="descriptionText" style="color: #666; line-height: 1.6; max-height: 100px; overflow: hidden; transition: max-height 0.3s ease;">
+                            @Model.Description
+                        </div>
+                        @if (Model.Description != null && Model.Description.Length > 200)
+                        {
+                            <button id="toggleDescription" onclick="toggleDescription(event)" style="background: none; border: none; color: #ff5b00; cursor: pointer; font-weight: 500; margin-top: 10px; padding: 0;">
+                                <span id="toggleText">Читать полностью</span> <i id="toggleIcon" class="fas fa-chevron-down"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Кнопки -->
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn-primary" style="padding: 15px 30px; width: auto; min-width: 200px;" onclick="addToCart(@Model.Id)">
+                        <i class="fas fa-cart-plus"></i> Добавить в корзину
+                    </button>
+                    <button class="btn-primary" style="padding: 15px 30px; width: auto; min-width: 200px; background: #28a745;" onclick="bookNow(@Model.Id)">
+                        <i class="fas fa-calendar-check"></i> Забронировать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Стили для описания */
+    #descriptionText.expanded {
+        max-height: 1000px !important;
+    }
+    
+    /* Ленивая загрузка изображений */
+    img[loading="lazy"] {
+        background: #f0f0f0;
+    }
+    
+    /* Адаптивность */
+    @@media (max-width: 992px) {
+        .product-details > .container > div:first-of-type {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .product-details {
+            padding: 100px 0 40px !important;
+        }
+        h1 {
+            font-size: 28px !important;
+        }
+        .product-details > .container > div:first-of-type > div:last-child > div:last-child {
+            flex-direction: column;
+        }
+        .product-details > .container > div:first-of-type > div:last-child > div:last-child button {
+            width: 100% !important;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Кэшируем DOM элементы
+        const mainImage = document.getElementById('mainImage');
+        const descriptionText = document.getElementById('descriptionText');
+        const toggleBtn = document.getElementById('toggleDescription');
+        const toggleText = document.getElementById('toggleText');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        function changeMainImage(src, element) {
+            if (!mainImage) return;
+            
+            // Меняем главное изображение
+            mainImage.src = src;
+            
+            // Убираем обводку у всех миниатюр
+            document.querySelectorAll('[onclick^="changeMainImage"]').forEach(el => {
+                if (el) el.style.borderColor = 'transparent';
+            });
+            
+            // Добавляем обводку текущей миниатюре
+            if (element) element.style.borderColor = '#ff5b00';
+        }
+        
+        function toggleDescription(event) {
+            if (event) event.preventDefault();
+            
+            if (!descriptionText || !toggleText || !toggleIcon || !toggleBtn) return;
+            
+            if (descriptionText.classList.contains('expanded')) {
+                descriptionText.classList.remove('expanded');
+                toggleText.textContent = 'Читать полностью';
+                toggleIcon.className = 'fas fa-chevron-down';
+            } else {
+                descriptionText.classList.add('expanded');
+                toggleText.textContent = 'Свернуть';
+                toggleIcon.className = 'fas fa-chevron-up';
+            }
+            
+            // Плавная прокрутка
+            setTimeout(() => {
+                toggleBtn.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center'
+                });
+            }, 100);
+        }
+        
+        function addToCart(productId) {
+            showNotification('Товар добавлен в корзину');
+        }
+        
+        function bookNow(productId) {
+            showNotification('Переход к оформлению...');
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = '<i class="fas fa-check-circle"></i>' + message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+    </script>
+}

@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - PhotoRental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    </head>
+    <body>
+        <!-- Навигация -->
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-content">
+                    <a href="/" class="logo">
+                        <i class="fas fa-camera"></i>
+                        <span>PhotoRental</span>
+                    </a>
+                    <div class="nav-menu">
+                        <a href="/" class="nav-link">Главная</a>
+                        <a href="@Url.Action("Index", "Catalog")" class="nav-link">Каталог</a>
+                        <a href="/how-it-works" class="nav-link">Как это работает</a>
+                        <a href="/contacts" class="nav-link">Контакты</a>
+                    </div>
+            
+                    <!-- Правая часть навигации -->
+                    <div class="nav-auth-left">
+                        <!-- Корзина -->
+                        <a href="@Url.Action("Index", "Cart")" class="cart-icon" id="cartLink">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count" id="cartCount">0</span>
+                        </a>
+
+                        <!-- Блок для авторизованных пользователей -->
+                        <div class="auth-user-section" id="profileMenu" style="display: none;">
+                            <a href="@Url.Action("Index", "Admin")" class="profile-button admin-button" style="background: #ff5b00; color: white; display: none;">
+                                
+                                <span>Админ</span>
+                            </a>
+                        
+                            <a href="@Url.Action("Index", "Profile")" class="profile-button">
+                                <i class="fas fa-user-circle"></i>
+                                <span id="userName"></span>
+                            </a>
+
+                            <form method="post" action="/Account/Logout" style="display: inline;" id="logoutForm">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="logout-button" title="Выйти из аккаунта">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Блок для неавторизованных пользователей -->
+                        <div class="auth-buttons" id="authButtons" style="display: none;">
+                            <a href="@Url.Action("Login", "Account")" class="btn-outline">Войти</a>
+                            <a href="@Url.Action("Register", "Account")" class="btn-primary">Регистрация</a>
+                        </div>
+                    </div>
+
+                    <div class="mobile-menu-btn">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main>
+            @RenderBody()
+        </main>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-col">
+                        <div class="footer-logo">
+                            <i class="fas fa-camera"></i>
+                            <span>PhotoRental</span>
+                        </div>
+                        <p class="footer-text">
+                            Профессиональная аренда фото- и видеотехники. Более 500 единиц оборудования в наличии.
+                        </p>
+                        <div class="social-links">
+                            <a href="#" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+                            <a href="#" target="_blank" title="VK"><i class="fab fa-vk"></i></a>
+                            <a href="#" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Информация</h4>
+                        <ul>
+                            <li><a href="/about"><i class="fas fa-info-circle"></i> О компании</a></li>
+                            <li><a href="/how-it-works"><i class="fas fa-play"></i> Как это работает</a></li>
+                            <li><a href="/delivery"><i class="fas fa-truck"></i> Доставка и оплата</a></li>
+                            <li><a href="/faq"><i class="fas fa-question-circle"></i> Частые вопросы</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Каталог</h4>
+                        <ul>
+                            <li><a href="@Url.Action("Index", "Catalog")?categoryId=1"><i class="fas fa-camera"></i> Фотоаппараты</a></li>
+                            <li><a href="@Url.Action("Index", "Catalog")?categoryId=2"><i class="fas fa-camera-retro"></i> Объективы</a></li>
+                            <li><a href="@Url.Action("Index", "Catalog")?categoryId=3"><i class="fas fa-video"></i> Видеокамеры</a></li>
+                            <li><a href="@Url.Action("Index", "Catalog")?categoryId=4"><i class="fas fa-lightbulb"></i> Свет</a></li>
+                            <li><a href="@Url.Action("Index", "Catalog")?categoryId=5"><i class="fas fa-tools"></i> Аксессуары</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-col">
+                        <h4>Контакты</h4>
+                        <ul>
+                            <li><i class="fas fa-phone-alt"></i> <a href="tel:+78001234567">8 (800) 123-45-67</a></li>
+                            <li><i class="fas fa-envelope"></i> <a href="mailto:info@photorental.ru">info@photorental.ru</a></li>
+                            <li><i class="fas fa-clock"></i> Пн-Пт: 10:00 - 20:00</li>
+                            <li><i class="fas fa-clock"></i> Сб-Вс: 11:00 - 18:00</li>
+                            <li><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Тверская, д. 1</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>&copy; @DateTime.Now.Year PhotoRental. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Скрипты -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+            // Сначала проверяем localStorage
+            const savedAuth = localStorage.getItem('authStatus');
+            const savedUser = localStorage.getItem('userName');
+            const savedIsAdmin = localStorage.getItem('isAdmin') === 'true';
+            
+            if (savedAuth === 'authenticated') {
+            // Показываем блок авторизованного пользователя сразу
+            $('#profileMenu').show();
+            $('#authButtons').hide();
+            $('#userName').text(savedUser || 'Профиль');
+                
+            if (savedIsAdmin) {
+            $('.admin-button').show();
+            } else {
+            $('.admin-button').hide();
+            }
+            } else {
+            // Показываем блок неавторизованного пользователя
+            $('#profileMenu').hide();
+            $('#authButtons').show();
+            }
+            
+            // Затем обновляем данные с сервера
+            checkAuthStatus();
+            updateCartCount();
+
+            function checkAuthStatus() {
+            $.ajax({
+            url: '/Account/GetAuthStatus?t=' + new Date().getTime(),
+            type: 'GET',
+            cache: false,
+            success: function(data) {
+            if (data.isAuthenticated) {
+            // Сохраняем в localStorage
+            localStorage.setItem('authStatus', 'authenticated');
+            localStorage.setItem('userName', data.userName || 'Профиль');
+                            
+            $('#profileMenu').show();
+            $('#authButtons').hide();
+            $('#userName').text(data.userName || 'Профиль');
+                            
+            // Проверяем, является ли пользователь админом
+            $.ajax({
+            url: '/Admin/IsAdmin',
+            type: 'GET',
+            success: function(adminData) {
+            localStorage.setItem('isAdmin', adminData.isAdmin);
+                                    
+            if (adminData.isAdmin) {
+            $('.admin-button').show();
+            } else {
+            $('.admin-button').hide();
+            }
+            }
+            });
+            } else {
+            // Очищаем localStorage
+            localStorage.removeItem('authStatus');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('isAdmin');
+                            
+            $('#profileMenu').hide();
+            $('#authButtons').show();
+            $('#userName').text('');
+            $('.admin-button').hide();
+            }
+            },
+            error: function() {
+            console.log('Ошибка проверки статуса');
+            }
+            });
+            }
+
+            function updateCartCount() {
+            // Проверяем сохраненное количество в localStorage
+            const savedCount = localStorage.getItem('cartCount');
+            if (savedCount) {
+            $('#cartCount').text(savedCount);
+            }
+                
+            $.ajax({
+            url: '/Cart/GetCartCount?t=' + new Date().getTime(),
+            type: 'GET',
+            cache: false,
+            success: function(data) {
+            $('#cartCount').text(data.count || 0);
+            localStorage.setItem('cartCount', data.count || 0);
+            }
+            });
+            }
+
+            // Обработчик отправки формы выхода
+            $('#logoutForm').submit(function(event) {
+            event.preventDefault();
+                
+            $.ajax({
+            url: '/Account/Logout',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function() {
+            // Очищаем localStorage
+            localStorage.removeItem('authStatus');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('cartCount');
+                        
+            $('#profileMenu').hide();
+            $('#authButtons').show();
+            $('#userName').text('');
+            $('.admin-button').hide();
+            $('#cartCount').text('0');
+                        
+            window.location.href = '/';
+            },
+            error: function() {
+            console.log('Ошибка при выходе');
+            }
+            });
+            });
+
+            // Проверяем статус каждые 30 секунд
+            setInterval(checkAuthStatus, 30000);
+            
+            // Мобильное меню
+            $('.mobile-menu-btn').click(function() {
+            $('.nav-menu').toggleClass('active');
+            });
+            });
+        </script>
+
+        @await RenderSectionAsync("Scripts", required: false)
+    </body>
+</html>

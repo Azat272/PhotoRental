@@ -1,0 +1,57 @@
+﻿@model PhotoRental.Models.LoginViewModel
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+<div class="form-container">
+    <h1 class="form-title">Вход</h1>
+    
+    <div class="form-subtitle">Добро пожаловать обратно!</div>
+
+    @if (ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="validation-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <div class="error-content">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
+        </div>
+    }
+
+    <form method="post" asp-action="Login" class="auth-form">
+        <div class="input-group">
+            <label class="input-label">
+                <i class="fas fa-envelope"></i>
+                Email
+            </label>
+            <input type="email" name="Email" class="form-input" placeholder="example@mail.com" required />
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">
+                <i class="fas fa-lock"></i>
+                Пароль
+            </label>
+            <input type="password" name="Password" class="form-input" placeholder="••••••••" required />
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" name="RememberMe" id="RememberMe" />
+            <label for="RememberMe">Запомнить меня</label>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            <i class="fas fa-sign-in-alt"></i>
+            Войти
+        </button>
+
+        <div class="form-footer">
+            <p>Нет аккаунта? <a asp-action="Register" class="form-link">Зарегистрироваться</a></p>
+        </div>
+    </form>
+</div>

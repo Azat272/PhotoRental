@@ -1,0 +1,242 @@
+﻿/* Общие стили для админ-панели */
+.admin-container {
+    padding: 120px 0 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.admin-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+    .form-label.required-field::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eaeaea;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #ff5b00;
+        outline: none;
+    }
+
+    .form-control.error {
+        border-color: #dc3545 !important;
+        background-color: #fff8f8;
+    }
+
+    .form-control.valid {
+        border-color: #28a745 !important;
+    }
+
+.form-select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eaeaea;
+    border-radius: 10px;
+    font-size: 16px;
+    background: white;
+}
+
+    .form-select.error {
+        border-color: #dc3545 !important;
+    }
+
+.field-validation-error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    padding-left: 5px;
+    font-weight: 500;
+    display: block;
+}
+
+/* Чекбоксы */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .checkbox-group input {
+        width: 20px;
+        height: 20px;
+    }
+
+/* Изображения */
+.image-preview {
+    margin-top: 10px;
+    max-width: 200px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #eaeaea;
+}
+
+    .image-preview img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+.current-image {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #eaeaea;
+}
+
+/* Кнопки */
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #ff5b00;
+    color: white;
+}
+
+    .btn-primary:hover {
+        background: #e34d00;
+    }
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #6c757d;
+    color: #6c757d;
+}
+
+    .btn-outline:hover {
+        background: #6c757d;
+        color: white;
+    }
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+    .btn-danger:hover {
+        background: #c82333;
+    }
+
+/* Сетка */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Уведомления */
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* Подсказки */
+.input-hint {
+    color: #999;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Группа цены */
+.price-input-group {
+    position: relative;
+}
+
+    .price-input-group .currency {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-weight: 500;
+    }
+
+    .price-input-group input {
+        padding-right: 40px;
+    }
+.validation-summary-errors {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .validation-summary-errors i {
+        color: #dc3545;
+        font-size: 20px;
+    }
+
+    .validation-summary-errors #errorMessages {
+        flex: 1;
+    }
+
+        .validation-summary-errors #errorMessages p {
+            margin: 5px 0;
+        }

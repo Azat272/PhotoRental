@@ -1,0 +1,282 @@
+﻿@model PhotoRental.Models.Booking
+@{
+    ViewData["Title"] = "Спасибо за заказ";
+}
+
+<style>
+    .thankyou-container {
+        padding: 120px 0 60px;
+        min-height: calc(100vh - 200px);
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    
+    .thankyou-card {
+        background: white;
+        border-radius: 20px;
+        padding: 50px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    
+    .success-icon {
+        font-size: 100px;
+        color: #28a745;
+        margin-bottom: 30px;
+        animation: scaleIn 0.5s ease;
+    }
+    
+    .order-number {
+        font-size: 18px;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .order-number span {
+        font-size: 24px;
+        font-weight: 700;
+        color: #ff5b00;
+        display: block;
+        margin-top: 5px;
+    }
+    
+    .thankyou-title {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .thankyou-message {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 40px;
+    }
+    
+    .order-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+    
+    .details-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .detail-value {
+        font-weight: 600;
+        color: #ff5b00;
+    }
+    
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        margin-top: 10px;
+        border-top: 2px solid #dee2e6;
+        font-size: 18px;
+    }
+    
+    .total-label {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .total-value {
+        font-weight: 700;
+        color: #ff5b00;
+        font-size: 22px;
+    }
+    
+    .status-badge {
+        background: #ffc107;
+        color: #000;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .btn-primary {
+        background: #ff5b00;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary:hover {
+        background: #e65200;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,91,0,0.3);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    @@keyframes scaleIn {
+        from {
+            transform: scale(0);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .thankyou-card {
+            padding: 30px 20px;
+            margin: 0 15px;
+        }
+        
+        .thankyou-title {
+            font-size: 28px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<section class="thankyou-container">
+    <div class="container">
+        <div class="thankyou-card">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <div class="order-number">
+                Номер заказа
+                <span>#@Model.Id</span>
+            </div>
+            
+            <h1 class="thankyou-title">Спасибо за аренду!</h1>
+            
+            <p class="thankyou-message">
+                Ваш заказ успешно оформлен. Мы отправили подтверждение на ваш email.
+            </p>
+            
+            <div class="order-details">
+                <h3 class="details-title">Детали заказа</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Товар:</span>
+                    <span class="detail-value">@Model.Product?.Name</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Период аренды:</span>
+                    <span class="detail-value">@Model.StartDate.ToString("dd.MM.yyyy") - @Model.EndDate.ToString("dd.MM.yyyy")</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Количество дней:</span>
+                    <span class="detail-value">@((Model.EndDate - Model.StartDate).Days)</span>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    var notes = Model.Notes.Split('\n');
+                    foreach (var note in notes.Where(n => n.Contains("Способ получения") || n.Contains("Способ оплаты")))
+                    {
+                        var parts = note.Split(':');
+                        if (parts.Length == 2)
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">@parts[0]:</span>
+                                <span class="detail-value">@parts[1].Trim()</span>
+                            </div>
+                        }
+                    }
+                }
+                
+                <div class="total-row">
+                    <span class="total-label">Итого к оплате:</span>
+                    <span class="total-value">@Model.TotalPrice.ToString("C2")</span>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <span class="status-badge">
+                        <i class="fas fa-clock"></i> Статус: @Model.Status
+                    </span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="@Url.Action("MyBookings", "Booking")" class="btn-primary">
+                    <i class="fas fa-list"></i> Мои бронирования
+                </a>
+                
+                <a href="@Url.Action("Index", "Catalog")" class="btn-secondary">
+                    <i class="fas fa-search"></i> В каталог
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,307 @@
+﻿@model PhotoRental.Models.CatalogViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<!-- Hero секция каталога -->
+<section class="hero" style="padding: 100px 0 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <div class="hero-content" style="color: white;">
+            <div class="hero-text">
+                <h1 class="hero-title" style="color: white;">@Model.Title</h1>
+                <p class="hero-description" style="color: rgba(255,255,255,0.9);">@Model.Description</p>
+                
+                <!-- Поиск -->
+                <div style="max-width: 600px; margin-top: 30px;">
+                    <form method="get" action="@Url.Action("Index")" style="display: flex; gap: 10px;">
+                        <input type="text" 
+                               name="search" 
+                               value="@Model.SearchQuery"
+                               placeholder="Поиск по названию, бренду..." 
+                               style="flex: 1; padding: 15px; border: none; border-radius: 30px; font-size: 16px;" />
+                        <button type="submit" class="btn-primary" style="padding: 15px 30px; border: none;">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="hero-stats" style="margin-top: 40px;">
+                    <div class="stat">
+                        <span class="stat-number" style="color: white;">@Model.TotalProducts</span>
+                        <span class="stat-label" style="color: rgba(255,255,255,0.8);">Товаров</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" style="color: white;">@Model.Categories.Count</span>
+                        <span class="stat-label" style="color: rgba(255,255,255,0.8);">Категорий</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number" style="color: white;">24/7</span>
+                        <span class="stat-label" style="color: rgba(255,255,255,0.8);">Поддержка</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Каталог -->
+<section class="catalog-section" style="padding: 60px 0;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 30px;">
+            
+            <!-- Фильтры (слева) -->
+            <div class="filters-sidebar">
+                <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-filter" style="color: #ff5b00;"></i> Фильтры
+                    </h3>
+                    
+                    <form method="get" action="@Url.Action("Index")" id="filterForm">
+                        <!-- Сохраняем поисковый запрос -->
+                        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                        {
+                            <input type="hidden" name="search" value="@Model.SearchQuery" />
+                        }
+                        
+                        <!-- Категории -->
+                        <div style="margin-bottom: 25px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Категории</h4>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                    <input type="radio" name="categoryId" value="" @(Model.SelectedCategoryId == null ? "checked" : "") 
+                                           onchange="document.getElementById('filterForm').submit()" />
+                                    <span>Все категории</span>
+                                </label>
+                                
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                        <input type="radio" name="categoryId" value="@category.Id" 
+                                               @(Model.SelectedCategoryId == category.Id ? "checked" : "")
+                                               onchange="document.getElementById('filterForm').submit()" />
+                                        <span>@category.Name</span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+                        
+                        <!-- Цена -->
+                        <div style="margin-bottom: 25px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Цена за день</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 13px; color: #666;">От</label>
+                                    <input type="number" 
+                                           name="minPrice" 
+                                           value="@Model.MinPrice"
+                                           class="form-input" 
+                                           placeholder="@Model.MinAvailablePrice"
+                                           style="width: 100%; padding: 8px;" />
+                                </div>
+                                <div>
+                                    <label style="font-size: 13px; color: #666;">До</label>
+                                    <input type="number" 
+                                           name="maxPrice" 
+                                           value="@Model.MaxPrice"
+                                           class="form-input" 
+                                           placeholder="@Model.MaxAvailablePrice"
+                                           style="width: 100%; padding: 8px;" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Сортировка -->
+                        <div style="margin-bottom: 25px;">
+                            <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Сортировка</h4>
+                            <select name="sort" class="form-input" style="width: 100%; padding: 10px;" onchange="this.form.submit()">
+                                <option value="popular" @(Model.SortBy == "popular" ? "selected" : "")>Популярные</option>
+                                <option value="price_asc" @(Model.SortBy == "price_asc" ? "selected" : "")>Сначала дешевле</option>
+                                <option value="price_desc" @(Model.SortBy == "price_desc" ? "selected" : "")>Сначала дороже</option>
+                                <option value="name_asc" @(Model.SortBy == "name_asc" ? "selected" : "")>По названию (А-Я)</option>
+                                <option value="name_desc" @(Model.SortBy == "name_desc" ? "selected" : "")>По названию (Я-А)</option>
+                                <option value="newest" @(Model.SortBy == "newest" ? "selected" : "")>Новинки</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;">
+                            <i class="fas fa-search"></i> Применить фильтры
+                        </button>
+                        
+                        <a href="@Url.Action("Index")" class="btn-outline" style="display: block; text-align: center; margin-top: 10px; padding: 12px;">
+                            <i class="fas fa-times"></i> Сбросить
+                        </a>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Список товаров (справа) -->
+            <div>
+                <!-- Количество результатов -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <p style="color: #666;">
+                        Найдено <strong>@Model.TotalProducts</strong> товаров
+                    </p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-outline" style="padding: 8px 15px;" onclick="toggleView('grid')">
+                            <i class="fas fa-th"></i> Сетка
+                        </button>
+                        <button class="btn-outline" style="padding: 8px 15px;" onclick="toggleView('list')">
+                            <i class="fas fa-list"></i> Список
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Товары (сетка как на главной) -->
+                @if (Model.Products.Any())
+                {
+                    <div class="products-grid" id="productsGrid">
+                        @foreach (var product in Model.Products)
+                        {
+                            <div class="product-card">
+                                <img src="@(product.ImageUrl ?? "https://via.placeholder.com/300x200")" alt="@product.Name" />
+                                <div style="position: absolute; top: 10px; right: 10px; background: #ff5b00; color: white; padding: 3px 10px; border-radius: 15px; font-size: 12px;">
+                                    @product.Brand
+                                </div>
+                                <h3>@product.Name</h3>
+                                <p style="color: #666; font-size: 13px; height: 40px; overflow: hidden;">
+                                    @(product.Description ?? product.Brand + " " + product.Model)
+                                </p>
+                                <div class="price">
+                                    <span>@product.PricePerDay.ToString("C2")/день</span>
+                                    @if (product.PricePerWeek.HasValue)
+                                    {
+                                        <span style="font-size: 14px; color: #999; display: block;">
+                                            @product.PricePerWeek.Value.ToString("C2")/неделя
+                                        </span>
+                                    }
+                                </div>
+                                <div class="product-actions">
+                                    <a href="@Url.Action("Details", "Catalog", new { id = product.Id })" class="btn-primary" style="padding: 8px;">
+                                        Подробнее
+                                    </a>
+                                    <button onclick="addToCart(@product.Id)" class="cart-add-btn">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Пагинация -->
+                    @if (Model.TotalPages > 1)
+                    {
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 40px;">
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                if (i == Model.CurrentPage)
+                                {
+                                    <span style="width: 40px; height: 40px; background: #ff5b00; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                                        @i
+                                    </span>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Index", new { 
+                                        page = i, 
+                                        categoryId = Model.SelectedCategoryId,
+                                        minPrice = Model.MinPrice,
+                                        maxPrice = Model.MaxPrice,
+                                        search = Model.SearchQuery,
+                                        sort = Model.SortBy
+                                    })" style="width: 40px; height: 40px; background: #f5f5f5; color: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 600;">
+                                        @i
+                                    </a>
+                                }
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
+                        <i class="fas fa-box-open" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                        <p style="color: #999; font-size: 18px; margin-bottom: 20px;">Товары не найдены</p>
+                        <a href="@Url.Action("Index")" class="btn-primary" style="padding: 12px 30px;">
+                            <i class="fas fa-redo"></i> Сбросить фильтры
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Популярные товары (как на главной) -->
+@if (Model.PopularProducts.Any())
+{
+    <section class="featured">
+        <div class="container">
+            <div class="section-header">
+                <h2>Популярное оборудование</h2>
+                <p>Самое востребованное у наших клиентов</p>
+            </div>
+            <div class="products-grid">
+                @foreach (var product in Model.PopularProducts)
+                {
+                    <div class="product-card">
+                        <img src="@(product.ImageUrl ?? "https://via.placeholder.com/300x200")" alt="@product.Name" />
+                        <h3>@product.Name</h3>
+                        <p>@(product.Description ?? product.Brand + " " + product.Model)</p>
+                        <div class="price">
+                            <span>@product.PricePerDay.ToString("C2")/день</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="@Url.Action("Details", "Catalog", new { id = product.Id })" class="btn-primary">Подробнее</a>
+                            <button onclick="addToCart(@product.Id)" class="cart-add-btn">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@section Scripts {
+    <script>
+        function addToCart(productId) {
+            $.ajax({
+                url: '/Cart/AddToCart',
+                type: 'POST',
+                data: { productId: productId, quantity: 1 },
+                success: function(response) {
+                    if (response.success) {
+                        $('#cartCount').text(response.cartCount);
+                        
+                        // Показываем уведомление
+                        showNotification('Товар добавлен в корзину');
+                    }
+                }
+            });
+        }
+        
+        function showNotification(message) {
+            // Создаем уведомление
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = '<i class="fas fa-check-circle"></i>' + message;
+            document.body.appendChild(notification);
+            
+            // Удаляем через 3 секунды
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        function toggleView(view) {
+            const grid = document.getElementById('productsGrid');
+            if (view === 'list') {
+                grid.classList.add('list-view');
+            } else {
+                grid.classList.remove('list-view');
+            }
+        }
+    </script>
+}

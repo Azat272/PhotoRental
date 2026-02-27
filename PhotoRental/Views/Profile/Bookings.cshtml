@@ -1,0 +1,173 @@
+﻿@model PhotoRental.Models.BookingsViewModel
+
+@{
+    ViewData["Title"] = "Мои бронирования";
+}
+
+<div class="profile-container" style="padding: 120px 0 60px;">
+    <div class="container">
+        <h1 style="font-size: 32px; font-weight: 700; color: #333; margin-bottom: 30px;">Мои бронирования</h1>
+
+        <!-- Навигация -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eaeaea; padding-bottom: 15px;">
+            <a href="@Url.Action("Index", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Обзор</a>
+            <a href="@Url.Action("Bookings", "Profile")" style="padding: 10px 20px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none;">Мои бронирования</a>
+            <a href="@Url.Action("Edit", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Личные данные</a>
+            <a href="@Url.Action("ChangePassword", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Смена пароля</a>
+            <a href="@Url.Action("Reviews", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Мои отзывы</a>
+            <a href="@Url.Action("Payments", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Платежи</a>
+        </div>
+
+        <!-- Вкладки -->
+        <div style="display: flex; gap: 20px; margin-bottom: 25px;">
+            <a href="@Url.Action("Bookings", "Profile", new { type = "active" })"
+                   style="padding: 8px 0; font-size: 16px; font-weight: 600; text-decoration: none; color: @(Model.CurrentTab == "active" ? "#ff5b00" : "#666"); border-bottom: @(Model.CurrentTab == "active" ? "2px solid #ff5b00" : "none");">
+                Активные (@Model.ActiveBookings.Count)
+            </a>
+            <a href="@Url.Action("Bookings", "Profile", new { type = "history" })"
+                   style="padding: 8px 0; font-size: 16px; font-weight: 600; text-decoration: none; color: @(Model.CurrentTab == "history" ? "#ff5b00" : "#666"); border-bottom: @(Model.CurrentTab == "history" ? "2px solid #ff5b00" : "none");">
+                История (@Model.HistoryBookings.Count)
+            </a>
+        </div>
+
+        <!-- Активные бронирования -->
+        @if (Model.CurrentTab == "active")
+        {
+            if (Model.ActiveBookings.Any())
+            {
+                <div style="display: grid; gap: 20px;">
+                    @foreach (var booking in Model.ActiveBookings)
+                    {
+                        <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                            <div style="display: flex; gap: 20px;">
+                                <img src="@booking.Product.ImageUrl" alt="@booking.Product.Name" style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px;" />
+                                
+                                <div style="flex-grow: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <h3 style="font-size: 20px; font-weight: 600;">@booking.Product.Name</h3>
+                                        <span style="padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                            background: @(booking.Status == "Active" ? "#d4edda" : "#fff3cd");
+                                            color: @(booking.Status == "Active" ? "#155724" : "#856404");">
+                                            @(booking.Status == "Active" ? "Активно" : "Ожидает подтверждения")
+                                        </span>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                                        <div>
+                                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Дата начала</div>
+                                            <div style="font-weight: 600;">@booking.StartDate.ToString("dd.MM.yyyy")</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Дата окончания</div>
+                                            <div style="font-weight: 600;">@booking.EndDate.ToString("dd.MM.yyyy")</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Стоимость аренды</div>
+                                            <div style="font-weight: 600;">@booking.TotalPrice.ToString("C2")</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #999; font-size: 13px; margin-bottom: 5px;">Залог</div>
+                                            <div style="font-weight: 600;">@booking.Deposit.ToString("C2")</div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 10px;">
+                                        <a href="@Url.Action("BookingDetails", "Profile", new { id = booking.Id })" style="padding: 8px 20px; border: 2px solid #ff5b00; color: #ff5b00; border-radius: 25px; text-decoration: none; font-size: 14px;">Подробнее</a>
+                                        
+                                        @if (booking.Status == "Active")
+                                        {
+                                            <button onclick="showExtendForm(@booking.Id)" style="padding: 8px 20px; border: 2px solid #ff5b00; color: #ff5b00; border-radius: 25px; background: none; cursor: pointer; font-size: 14px;">Продлить</button>
+                                            
+                                            <form asp-action="CancelBooking" method="post" style="display: inline;"
+                                                  onsubmit="return confirm('Вы уверены, что хотите отменить бронирование?');">
+                                                <input type="hidden" name="bookingId" value="@booking.Id" />
+                                                <button type="submit" style="padding: 8px 20px; border: 2px solid #dc3545; color: #dc3545; border-radius: 25px; background: none; cursor: pointer; font-size: 14px;">Отменить</button>
+                                            </form>
+                                        }
+                                    </div>
+
+                                    <!-- Форма продления (скрыта) -->
+                                    <div id="extendForm_@booking.Id" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                                        <form asp-action="ExtendBooking" method="post">
+                                            <input type="hidden" name="bookingId" value="@booking.Id" />
+                                            <label style="display: block; margin-bottom: 10px;">Выберите новую дату окончания:</label>
+                                            <input type="date" name="newEndDate" min="@booking.EndDate.AddDays(1).ToString("yyyy-MM-dd")" required
+                                                   style="padding: 8px; border: 1px solid #ddd; border-radius: 5px;" />
+                                            <button type="submit" style="margin-left: 10px; padding: 8px 20px; background: #ff5b00; color: white; border: none; border-radius: 25px; cursor: pointer;">Подтвердить</button>
+                                            <button type="button" onclick="hideExtendForm(@booking.Id)" style="margin-left: 10px; padding: 8px 20px; background: none; border: 1px solid #999; border-radius: 25px; cursor: pointer;">Отмена</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
+                    <i class="fas fa-calendar-times" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                    <p style="color: #999; font-size: 18px; margin-bottom: 20px;">У вас нет активных бронирований</p>
+                    <a href="/catalog.html" style="padding: 12px 30px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none;">Перейти в каталог</a>
+                </div>
+            }
+        }
+
+        <!-- История бронирований -->
+        @if (Model.CurrentTab == "history")
+        {
+            if (Model.HistoryBookings.Any())
+            {
+                <div style="display: grid; gap: 15px;">
+                    @foreach (var booking in Model.HistoryBookings)
+                    {
+                        <div style="background: white; border-radius: 10px; padding: 20px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="@booking.Product.ImageUrl" alt="@booking.Product.Name" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" />
+                                <div>
+                                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 5px;">@booking.Product.Name</h3>
+                                    <p style="color: #666; font-size: 14px;">
+                                        @booking.StartDate.ToString("dd.MM.yyyy") - @booking.EndDate.ToString("dd.MM.yyyy")
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 20px;">
+                                <span style="padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+                                    @(booking.Status == "Completed" ? "background: #d4edda; color: #155724;" : "background: #f8d7da; color: #721c24;")">
+                                    @(booking.Status == "Completed" ? "Завершено" : "Отменено")
+                                </span>
+                                <span style="font-weight: 600;">@booking.TotalPrice.ToString("C2")</span>
+                                <div style="display: flex; gap: 10px;">
+                                    @if (booking.Status == "Completed")
+                                    {
+                                        <a href="@Url.Action("EditReview", "Profile", new { productId = booking.ProductId })" style="padding: 5px 15px; border: 2px solid #ff5b00; color: #ff5b00; border-radius: 25px; text-decoration: none; font-size: 14px;">Оставить отзыв</a>
+                                    }
+                                    <a href="@Url.Action("BookingDetails", "Profile", new { id = booking.Id })" style="color: #ff5b00;">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
+                    <i class="fas fa-history" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                    <p style="color: #999; font-size: 18px;">История бронирований пуста</p>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<script>
+    function showExtendForm(bookingId) {
+        document.getElementById('extendForm_' + bookingId).style.display = 'block';
+    }
+
+    function hideExtendForm(bookingId) {
+        document.getElementById('extendForm_' + bookingId).style.display = 'none';
+    }
+</script>

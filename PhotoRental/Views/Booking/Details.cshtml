@@ -1,0 +1,293 @@
+﻿@model PhotoRental.Models.Booking
+@{
+    ViewData["Title"] = $"Бронирование #{Model.Id}";
+}
+
+<style>
+    .booking-details-container {
+        padding: 120px 0 60px;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .booking-details-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .details-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .status-badge {
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-completed {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+    
+    .details-grid {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .details-image img {
+        width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .details-info h3 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    
+    .info-row {
+        display: flex;
+        margin-bottom: 12px;
+    }
+    
+    .info-label {
+        width: 120px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .price-box {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+    
+        .price-row.total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff5b00;
+            border-top: 2px solid #eaeaea;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+    
+    .customer-info {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+        .customer-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+    
+    .back-btn {
+        display: inline-block;
+        margin-top: 20px;
+        color: #ff5b00;
+        text-decoration: none;
+    }
+    
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+</style>
+
+<section class="booking-details-container">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div class="booking-details-card">
+            <div class="details-header">
+                <h1 class="details-title">Бронирование #@Model.Id</h1>
+                <span class="status-badge status-@Model.Status.ToLower()">
+                    @switch (Model.Status.ToLower())
+                    {
+                        case "pending":
+                            <span>Ожидает подтверждения</span>
+                            break;
+                        case "confirmed":
+                            <span>Подтверждено</span>
+                            break;
+                        case "cancelled":
+                            <span>Отменено</span>
+                            break;
+                        case "completed":
+                            <span>Завершено</span>
+                            break;
+                        default:
+                            <span>@Model.Status</span>
+                            break;
+                    }
+                </span>
+            </div>
+            
+            <div class="details-grid">
+                <div class="details-image">
+                    <img src="@(Model.Product?.ImageUrl ?? "https://via.placeholder.com/200x200")" alt="@Model.Product?.Name">
+                </div>
+                <div class="details-info">
+                    <h3>@Model.Product?.Name</h3>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Бренд:</span>
+                        <span class="info-value">@Model.Product?.Brand</span>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Product?.Model))
+                    {
+                        <div class="info-row">
+                            <span class="info-label">Модель:</span>
+                            <span class="info-value">@Model.Product.Model</span>
+                        </div>
+                    }
+                    
+                    <div class="info-row">
+                        <span class="info-label">Категория:</span>
+                        <span class="info-value">@Model.Product?.Category?.Name</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="price-box">
+                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">Детали аренды</h4>
+                
+                <div class="price-row">
+                    <span>Дата начала:</span>
+                    <span>@Model.StartDate.ToString("dd MMMM yyyy")</span>
+                </div>
+                
+                <div class="price-row">
+                    <span>Дата окончания:</span>
+                    <span>@Model.EndDate.ToString("dd MMMM yyyy")</span>
+                </div>
+                
+                <div class="price-row">
+                    <span>Количество дней:</span>
+                    <span>@((Model.EndDate - Model.StartDate).Days)</span>
+                </div>
+                
+                <div class="price-row">
+                    <span>Цена за день:</span>
+                    <span>@Model.Product?.PricePerDay.ToString("C2")</span>
+                </div>
+                
+                <div class="price-row total">
+                    <span>Итого:</span>
+                    <span>@Model.TotalPrice.ToString("C2")</span>
+                </div>
+                
+                <div class="price-row" style="color: #666;">
+                    <span><i class="fas fa-info-circle"></i> Залог:</span>
+                    <span>@Model.Deposit.ToString("C2")</span>
+                </div>
+            </div>
+            
+            <div class="customer-info">
+                <h4>Информация о клиенте</h4>
+                
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    var lines = Model.Notes.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("Имя:"))
+                        {
+                            <div class="info-row">
+                                <span class="info-label">Имя:</span>
+                                <span class="info-value">@line.Replace("Имя:", "")</span>
+                            </div>
+                        }
+                        else if (line.StartsWith("Телефон:"))
+                        {
+                            <div class="info-row">
+                                <span class="info-label">Телефон:</span>
+                                <span class="info-value">@line.Replace("Телефон:", "")</span>
+                            </div>
+                        }
+                        else if (line.StartsWith("Email:"))
+                        {
+                            <div class="info-row">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value">@line.Replace("Email:", "")</span>
+                            </div>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(line))
+                        {
+                            <div class="info-row">
+                                <span class="info-label">Комментарий:</span>
+                                <span class="info-value">@line</span>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <a href="@Url.Action("MyBookings")" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Назад к списку
+                </a>
+                
+                @if (Model.Status.ToLower() == "pending" && Model.StartDate > DateTime.Today)
+                {
+                    <form asp-action="Cancel" asp-controller="Booking" method="post"
+                          onsubmit="return confirm('Отменить бронирование?');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn-cancel" style="background: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer;">
+                            <i class="fas fa-times"></i> Отменить бронирование
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,371 @@
+﻿/* checkout.css */
+.checkout-container {
+    padding: 120px 0 60px;
+    min-height: calc(100vh - 200px);
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.checkout-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.dates-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.date-field {
+    width: 100%;
+}
+
+    .date-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .date-field input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #eaeaea;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+        .date-field input:focus {
+            border-color: #ff5b00;
+            outline: none;
+        }
+
+.rental-days {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .rental-days span:last-child {
+        font-weight: 600;
+        color: #ff5b00;
+    }
+
+    .rental-days.highlight {
+        background: #fff5f0;
+    }
+
+.address-search {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+    .address-search input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #eaeaea;
+        border-radius: 10px;
+        font-size: 14px;
+        padding-left: 40px;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 22s8-4 8-10-4-8-8-8-8 2-8 8 8 10 8 10z"/><circle cx="12" cy="12" r="3"/></svg>');
+        background-repeat: no-repeat;
+        background-position: 12px center;
+        transition: border-color 0.3s ease;
+    }
+
+        .address-search input:focus {
+            border-color: #ff5b00;
+            outline: none;
+        }
+
+.pickup-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border: 2px solid #eaeaea;
+    border-radius: 10px;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .pickup-option:hover {
+        border-color: #ff5b00;
+    }
+
+    .pickup-option.selected {
+        border-color: #ff5b00;
+        background: #fff5f0;
+    }
+
+    .pickup-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #ff5b00;
+        margin: 0;
+        pointer-events: none;
+    }
+
+.pickup-address {
+    margin-left: auto;
+    font-weight: 500;
+    color: #ff5b00;
+}
+
+/* Стили для методов оплаты (упрощенные, без иконок) */
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    border: 2px solid #eaeaea;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .payment-option:hover {
+        border-color: #ff5b00;
+    }
+
+    .payment-option.selected {
+        border-color: #ff5b00;
+        background: #fff5f0;
+    }
+
+    .payment-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #ff5b00;
+        margin: 0;
+        pointer-events: none;
+    }
+
+.payment-info {
+    margin-left: auto;
+    font-size: 13px;
+    color: #666;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eaeaea;
+}
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+.order-item-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+    .order-item-info img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+.order-item-details h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.order-item-details p {
+    color: #666;
+    font-size: 14px;
+}
+
+.order-item-price {
+    font-weight: 600;
+    color: #ff5b00;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 18px;
+}
+
+    .total-row.grand-total {
+        font-size: 22px;
+        font-weight: 700;
+        color: #ff5b00;
+        border-top: 2px solid #eaeaea;
+        padding-top: 15px;
+        margin-top: 10px;
+    }
+
+.confirm-btn {
+    width: 100%;
+    background: #ff5b00;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+    .confirm-btn:hover {
+        background: #e65200;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,91,0,0.3);
+    }
+
+    .confirm-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .confirm-btn i {
+        margin-right: 8px;
+    }
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eaeaea;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+    .form-input:focus {
+        border-color: #ff5b00;
+        outline: none;
+    }
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    display: none;
+}
+
+    .error-message.show {
+        display: block;
+    }
+
+.pickup-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+    .pickup-info p {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pickup-info i {
+        color: #ff5b00;
+        width: 20px;
+    }
+
+.terms-text {
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+    .terms-text i {
+        margin-right: 5px;
+        color: #ff5b00;
+    }
+
+.container-custom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 992px) {
+    .checkout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-title {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 576px) {
+    .checkout-container {
+        padding: 100px 0 40px;
+    }
+
+    .dates-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .order-item-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+        .order-item-info img {
+            width: 100%;
+            height: 100px;
+        }
+}

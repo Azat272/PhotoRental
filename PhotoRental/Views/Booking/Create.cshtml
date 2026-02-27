@@ -1,0 +1,247 @@
+﻿@model PhotoRental.Models.CreateBookingViewModel
+@{
+    ViewData["Title"] = "Оформление бронирования";
+}
+
+<style>
+    .booking-container {
+        padding: 120px 0 60px;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .product-summary {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 15px;
+        margin-bottom: 25px;
+    }
+    
+        .product-summary img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #eaeaea;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+        .form-control:focus {
+            border-color: #ff5b00;
+            outline: none;
+        }
+    
+    .date-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .price-summary {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+    
+        .price-row.total {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff5b00;
+            border-top: 2px solid #eaeaea;
+            margin-top: 10px;
+            padding-top: 15px;
+        }
+    
+    .submit-btn {
+        width: 100%;
+        background: #ff5b00;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+        .submit-btn:hover {
+            background: #e65200;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,91,0,0.3);
+        }
+    
+    .validation-summary {
+        color: #dc3545;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #f8d7da;
+        border-radius: 8px;
+    }
+</style>
+
+<section class="booking-container">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div class="booking-card">
+            <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 25px;">Оформление бронирования</h1>
+            
+            <div class="product-summary">
+                <img src="@(Model.ProductImage ?? "https://via.placeholder.com/120x120")" alt="@Model.ProductName">
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">@Model.ProductName</h2>
+                    <p style="color: #666; margin-bottom: 10px;">@Model.PricePerDay.ToString("C2")/день</p>
+                    <p style="color: #999; font-size: 14px;"><i class="fas fa-info-circle"></i> Залог: @Model.Deposit.ToString("C2")</p>
+                </div>
+            </div>
+            
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+                <input type="hidden" asp-for="ProductId" />
+                <input type="hidden" asp-for="ProductName" />
+                <input type="hidden" asp-for="ProductImage" />
+                <input type="hidden" asp-for="PricePerDay" />
+                <input type="hidden" asp-for="Deposit" />
+                
+                <div class="date-row">
+                    <div class="form-group">
+                        <label asp-for="StartDate">Дата начала</label>
+                        <input asp-for="StartDate" type="date" class="form-control"
+                               min="@DateTime.Today.ToString("yyyy-MM-dd")" id="startDate" />
+                        <span asp-validation-for="StartDate" style="color: #dc3545; font-size: 13px;"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="EndDate">Дата окончания</label>
+                        <input asp-for="EndDate" type="date" class="form-control"
+                               min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" id="endDate" />
+                        <span asp-validation-for="EndDate" style="color: #dc3545; font-size: 13px;"></span>
+                    </div>
+                </div>
+                
+                <div class="price-summary" id="priceSummary">
+                    <div class="price-row">
+                        <span>@Model.PricePerDay.ToString("C2") × <span id="daysCount">1</span> день</span>
+                        <span id="totalPrice">@Model.PricePerDay.ToString("C2")</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Итого:</span>
+                        <span id="finalTotal">@Model.PricePerDay.ToString("C2")</span>
+                    </div>
+                </div>
+                
+                <h3 style="font-size: 18px; font-weight: 600; margin: 25px 0 15px;">Контактные данные</h3>
+                
+                <div class="form-group">
+                    <label asp-for="CustomerName">Имя *</label>
+                    <input asp-for="CustomerName" class="form-control" placeholder="Иванов Иван" />
+                    <span asp-validation-for="CustomerName" style="color: #dc3545; font-size: 13px;"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="CustomerPhone">Телефон *</label>
+                    <input asp-for="CustomerPhone" class="form-control" placeholder="+7 (999) 123-45-67" />
+                    <span asp-validation-for="CustomerPhone" style="color: #dc3545; font-size: 13px;"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="CustomerEmail">Email *</label>
+                    <input asp-for="CustomerEmail" class="form-control" placeholder="example@mail.com" />
+                    <span asp-validation-for="CustomerEmail" style="color: #dc3545; font-size: 13px;"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Comment">Комментарий</label>
+                    <textarea asp-for="Comment" class="form-control" rows="4" placeholder="Дополнительная информация по заказу..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-check-circle"></i> Подтвердить бронирование
+                </button>
+                
+                <p style="text-align: center; margin-top: 15px; color: #666; font-size: 14px;">
+                    <i class="fas fa-info-circle"></i> Нажимая кнопку, вы соглашаетесь с условиями аренды
+                </p>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const pricePerDay = @Model.PricePerDay;
+            const daysSpan = document.getElementById('daysCount');
+            const totalSpan = document.getElementById('totalPrice');
+            const finalTotal = document.getElementById('finalTotal');
+            
+            function updatePrice() {
+                if (startDate.value && endDate.value) {
+                    const start = new Date(startDate.value);
+                    const end = new Date(endDate.value);
+                    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                    
+                    if (days > 0) {
+                        const total = days * pricePerDay;
+                        daysSpan.textContent = days;
+                        totalSpan.textContent = total.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
+                        finalTotal.textContent = total.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
+                    }
+                }
+            }
+            
+            startDate.addEventListener('change', function() {
+                const start = new Date(this.value);
+                const minEnd = new Date(start);
+                minEnd.setDate(start.getDate() + 1);
+                endDate.min = minEnd.toISOString().split('T')[0];
+                
+                if (new Date(endDate.value) <= start) {
+                    endDate.value = minEnd.toISOString().split('T')[0];
+                }
+                
+                updatePrice();
+            });
+            
+            endDate.addEventListener('change', updatePrice);
+        });
+    </script>
+}

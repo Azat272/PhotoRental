@@ -1,0 +1,121 @@
+﻿@model PhotoRental.Models.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Личные данные";
+}
+
+<div class="profile-container" style="padding: 120px 0 60px;">
+    <div class="container">
+        <h1 style="font-size: 32px; font-weight: 700; color: #333; margin-bottom: 30px;">Личные данные</h1>
+
+        <!-- Навигация -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eaeaea; padding-bottom: 15px;">
+            <a href="@Url.Action("Index", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Обзор</a>
+            <a href="@Url.Action("Bookings", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Мои бронирования</a>
+            <a href="@Url.Action("Edit", "Profile")" style="padding: 10px 20px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none;">Личные данные</a>
+            <a href="@Url.Action("ChangePassword", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Смена пароля</a>
+            <a href="@Url.Action("Reviews", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Мои отзывы</a>
+            <a href="@Url.Action("Payments", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Платежи</a>
+        </div>
+
+        <!-- Сообщения об успехе/ошибке -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <!-- Форма редактирования профиля -->
+            <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 25px;">Редактирование профиля</h2>
+
+                <form asp-action="Edit" method="post">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Полное имя</label>
+                        <input asp-for="FullName" class="form-control" style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px;"
+                               value="@Model.FullName" />
+                        <span asp-validation-for="FullName" style="color: #dc3545; font-size: 14px; margin-top: 5px; display: block;"></span>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                        <input asp-for="Email" class="form-control" readonly
+                               style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px; background: #f5f5f5;"
+                               value="@Model.Email" />
+                        <small style="color: #999; font-size: 13px;">Email нельзя изменить</small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Номер телефона</label>
+                        <input asp-for="PhoneNumber" class="form-control"
+                               style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px;"
+                               placeholder="+7 (999) 123-45-67" value="@Model.PhoneNumber" />
+                        <span asp-validation-for="PhoneNumber" style="color: #dc3545; font-size: 14px; margin-top: 5px; display: block;"></span>
+                    </div>
+
+                    <button type="submit" style="width: 100%; padding: 14px; background: #ff5b00; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                        Сохранить изменения
+                    </button>
+                </form>
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div>
+                <!-- Статистика аккаунта -->
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 30px;">
+                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Статистика аккаунта</h2>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eaeaea;">
+                        <span style="color: #666;">Всего бронирований:</span>
+                        <span style="font-weight: 600;">@ViewBag.TotalBookings</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eaeaea;">
+                        <span style="color: #666;">Активных сейчас:</span>
+                        <span style="font-weight: 600;">@ViewBag.ActiveBookings</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eaeaea;">
+                        <span style="color: #666;">Завершенных:</span>
+                        <span style="font-weight: 600;">@ViewBag.CompletedBookings</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+                        <span style="color: #666;">Отзывов оставлено:</span>
+                        <span style="font-weight: 600;">@ViewBag.ReviewsCount</span>
+                    </div>
+                </div>
+
+                <!-- Безопасность -->
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Безопасность</h2>
+                    
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eaeaea;">
+                        <div>
+                            <div style="font-weight: 500;">Двухфакторная аутентификация</div>
+                            <div style="color: #999; font-size: 13px;">Защитите свой аккаунт</div>
+                        </div>
+                        <label style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                            <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                        </label>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <a href="@Url.Action("ChangePassword", "Profile")" style="display: inline-block; padding: 10px 20px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none; font-size: 14px;">
+                            Сменить пароль
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

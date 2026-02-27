@@ -1,0 +1,135 @@
+﻿@model PhotoRental.Models.AddCardViewModel
+
+@{
+    ViewData["Title"] = "Добавление карты";
+}
+
+<div class="profile-container" style="padding: 120px 0 60px;">
+    <div class="container">
+        <h1 style="font-size: 32px; font-weight: 700; color: #333; margin-bottom: 30px;">Добавление карты</h1>
+
+        <!-- Навигация -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eaeaea; padding-bottom: 15px;">
+            <a href="@Url.Action("Index", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Обзор</a>
+            <a href="@Url.Action("Bookings", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Мои бронирования</a>
+            <a href="@Url.Action("Edit", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Личные данные</a>
+            <a href="@Url.Action("ChangePassword", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Смена пароля</a>
+            <a href="@Url.Action("Reviews", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Мои отзывы</a>
+            <a href="@Url.Action("Payments", "Profile")" style="padding: 10px 20px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none;">Платежи</a>
+        </div>
+
+        <div style="max-width: 500px; margin: 0 auto;">
+            <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 25px;">Новая банковская карта</h2>
+
+                <form asp-action="AddCard" method="post">
+                    <div asp-validation-summary="All" style="color: #dc3545; margin-bottom: 20px;"></div>
+
+                    <!-- Номер карты -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Номер карты</label>
+                        <input asp-for="CardNumber" type="text" maxlength="19" placeholder="1234 5678 9012 3456"
+                               style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px;"
+                               oninput="formatCardNumber(this)" />
+                        <span asp-validation-for="CardNumber" style="color: #dc3545; font-size: 14px; margin-top: 5px; display: block;"></span>
+                    </div>
+
+                    <!-- Имя владельца -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Имя владельца</label>
+                        <input asp-for="CardHolderName" type="text" placeholder="IVAN PETROV"
+                               style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px; text-transform: uppercase;" />
+                        <span asp-validation-for="CardHolderName" style="color: #dc3545; font-size: 14px; margin-top: 5px; display: block;"></span>
+                    </div>
+
+                    <!-- Срок действия и CVV -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Месяц</label>
+                            <select asp-for="ExpiryMonth" style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px;">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i">@i.ToString("D2")</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Год</label>
+                            <select asp-for="ExpiryYear" style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px;">
+                                @for (int i = DateTime.Now.Year; i <= DateTime.Now.Year + 10; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CVV -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500;">CVV код</label>
+                        <input asp-for="Cvv" type="password" maxlength="3" placeholder="123"
+                               style="width: 100%; padding: 12px; border: 2px solid #eaeaea; border-radius: 10px; font-size: 16px;" />
+                        <span asp-validation-for="Cvv" style="color: #dc3545; font-size: 14px; margin-top: 5px; display: block;"></span>
+                        <small style="color: #999; font-size: 13px;">3 цифры на обратной стороне карты</small>
+                    </div>
+
+                    <!-- Сделать основной -->
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input asp-for="SetAsDefault" type="checkbox" style="width: 18px; height: 18px;" />
+                            <span style="color: #333;">Сделать этой картой способ оплаты по умолчанию</span>
+                        </label>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div style="display: flex; gap: 15px;">
+                        <button type="submit" style="flex: 1; padding: 14px; background: #ff5b00; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                            Добавить карту
+                        </button>
+                        <a href="@Url.Action("Payments", "Profile")" style="flex: 1; padding: 14px; background: none; border: 2px solid #666; color: #666; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; text-align: center;">
+                            Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Информация о безопасности -->
+            <div style="background: #e7f3ff; border-radius: 15px; padding: 20px; margin-top: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">Безопасность данных</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #0056b3; font-size: 14px;">
+                    <li>Ваши данные надежно защищены</li>
+                    <li>Мы не храним CVV код после подтверждения платежа</li>
+                    <li>Все платежи проходят через защищенное соединение</li>
+                    <li>3D Secure защита для дополнительной безопасности</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        function formatCardNumber(input) {
+            // Удаляем все не-цифры
+            let value = input.value.replace(/\D/g, '');
+            
+            // Ограничиваем до 16 цифр
+            value = value.substring(0, 16);
+            
+            // Форматируем по 4 цифры
+            let formatted = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += ' ';
+                }
+                formatted += value[i];
+            }
+            
+            input.value = formatted;
+        }
+    </script>
+}

@@ -1,0 +1,365 @@
+﻿@model PhotoRental.Models.CartViewModel
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<!-- Подключаем Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    .cart-container {
+        padding: 120px 0 60px;
+        min-height: calc(100vh - 200px);
+    }
+    
+    .cart-empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+        .cart-empty i {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+    
+        .cart-empty h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+    
+        .cart-empty p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+    
+    .cart-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+    
+        .cart-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        .cart-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eaeaea;
+        }
+    
+        .cart-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #eaeaea;
+            vertical-align: middle;
+        }
+    
+    .cart-product {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+        .cart-product img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    
+    .cart-product-info h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .cart-product-info p {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .cart-quantity {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .quantity-btn {
+        width: 35px;
+        height: 35px;
+        border: 2px solid #eaeaea;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+        .quantity-btn:hover {
+            border-color: #ff5b00;
+            color: #ff5b00;
+        }
+    
+    .quantity-input {
+        width: 60px;
+        height: 35px;
+        border: 2px solid #eaeaea;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 14px;
+    }
+    
+    .cart-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: #ff5b00;
+    }
+    
+    .cart-remove {
+        color: #dc3545;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+        .cart-remove:hover {
+            transform: scale(1.1);
+        }
+    
+    .cart-summary {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eaeaea;
+    }
+    
+        .summary-row.total {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ff5b00;
+            border-bottom: none;
+            padding-top: 20px;
+        }
+    
+    .checkout-btn {
+        width: 100%;
+        background: #ff5b00;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+    
+        .checkout-btn:hover {
+            background: #e65200;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,91,0,0.3);
+        }
+    
+        .checkout-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    
+    .clear-cart {
+        background: none;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+        .clear-cart:hover {
+            background: #dc3545;
+            color: white;
+        }
+    
+    @@media (max-width: 768px) {
+        .cart-table table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .cart-product {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<section class="cart-container">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 30px;">Корзина</h1>
+        
+        @if (!Model.Items.Any())
+        {
+            <div class="cart-empty">
+                <i class="fas fa-shopping-cart"></i>
+                <h2>Корзина пуста</h2>
+                <p>Добавьте товары в корзину, чтобы оформить бронирование</p>
+                
+            </div>
+        }
+        else
+        {
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                <div>
+                    <div class="cart-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th>Цена за день</th>
+                                    <th>Количество</th>
+                                    <th>Сумма</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr data-item-id="@item.CartItemId">
+                                        <td>
+                                            <div class="cart-product">
+                                                <img src="@(item.ImageUrl ?? "https://via.placeholder.com/80x80")" alt="@item.ProductName">
+                                                <div class="cart-product-info">
+                                                    <h3>@item.ProductName</h3>
+                                                    <p>Артикул: #@item.ProductId</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="cart-price">@item.PricePerDay.ToString("C2")</span>
+                                        </td>
+                                        <td>
+                                            <div class="cart-quantity">
+                                                <button class="quantity-btn" onclick="updateQuantity(@item.CartItemId, @item.Quantity - 1)">-</button>
+                                                <span class="quantity-input">@item.Quantity</span>
+                                                <button class="quantity-btn" onclick="updateQuantity(@item.CartItemId, @item.Quantity + 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="cart-price" id="total-@item.CartItemId">@item.TotalPrice.ToString("C2")</span>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-trash cart-remove" onclick="removeFromCart(@item.CartItemId)"></i>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                        <button class="clear-cart" onclick="clearCart()">
+                            <i class="fas fa-trash"></i> Очистить корзину
+                        </button>
+                        <a href="@Url.Action("Index", "Catalog")" class="btn-continue">
+                            <i class="fas fa-arrow-left"></i> Продолжить покупки
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="cart-summary">
+                        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Итого</h3>
+                        <div class="summary-row">
+                            <span>Товаров:</span>
+                            <span>@Model.TotalItems шт.</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Общая сумма:</span>
+                            <span id="cart-total">@Model.TotalAmount.ToString("C2")</span>
+                        </div>
+                        
+                        <!-- Вместо location.href используйте обычную ссылку -->
+                        <a href="@Url.Action("Checkout", "Cart")" class="checkout-btn" @(Model.Items.Any() ? "" : "disabled")>
+                            <i class="fas fa-credit-card"></i> Перейти к оформлению
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function updateQuantity(cartItemId, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(cartItemId);
+                return;
+            }
+            
+            $.ajax({
+                url: '@Url.Action("UpdateQuantity", "Cart")',
+                type: 'POST',
+                data: { cartItemId: cartItemId, quantity: newQuantity },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Ошибка при обновлении количества');
+                    }
+                }
+            });
+        }
+        
+        function removeFromCart(cartItemId) {
+            if (confirm('Удалить товар из корзины?')) {
+                $.ajax({
+                    url: '@Url.Action("RemoveFromCart", "Cart")',
+                    type: 'POST',
+                    data: { cartItemId: cartItemId },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        }
+        
+        function clearCart() {
+            if (confirm('Очистить корзину?')) {
+                $.ajax({
+                    url: '@Url.Action("ClearCart", "Cart")',
+                    type: 'POST',
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

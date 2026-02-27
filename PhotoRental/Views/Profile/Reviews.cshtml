@@ -1,0 +1,100 @@
+﻿@model IEnumerable<PhotoRental.Models.Review>
+
+@{
+    ViewData["Title"] = "Мои отзывы";
+}
+
+<div class="profile-container" style="padding: 120px 0 60px;">
+    <div class="container">
+        <h1 style="font-size: 32px; font-weight: 700; color: #333; margin-bottom: 30px;">Мои отзывы</h1>
+
+        <!-- Навигация -->
+        <div style="display: flex; gap: 15px; margin-bottom: 30px; border-bottom: 2px solid #eaeaea; padding-bottom: 15px;">
+            <a href="@Url.Action("Index", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Обзор</a>
+            <a href="@Url.Action("Bookings", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Мои бронирования</a>
+            <a href="@Url.Action("Edit", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Личные данные</a>
+            <a href="@Url.Action("ChangePassword", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Смена пароля</a>
+            <a href="@Url.Action("Reviews", "Profile")" style="padding: 10px 20px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none;">Мои отзывы</a>
+            <a href="@Url.Action("Payments", "Profile")" style="padding: 10px 20px; color: #666; text-decoration: none;">Платежи</a>
+        </div>
+
+        <!-- Сообщения об успехе/ошибке -->
+        @if (TempData["Success"] != null)
+        {
+            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                @TempData["Success"]
+            </div>
+        }
+
+        <!-- Список отзывов -->
+        @if (Model.Any())
+        {
+            <div style="display: grid; gap: 20px;">
+                @foreach (var review in Model)
+                {
+                    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                        <div style="display: flex; gap: 20px;">
+                            <img src="@review.Product?.ImageUrl" alt="@review.Product?.Name" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px;" />
+                            
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h3 style="font-size: 18px; font-weight: 600;">@review.Product?.Name</h3>
+                                    <div style="display: flex; gap: 10px;">
+                                        <a href="@Url.Action("EditReview", "Profile", new { id = review.Id })" style="color: #ff5b00; text-decoration: none;">
+                                            <i class="fas fa-edit"></i> Редактировать
+                                        </a>
+                                        <form asp-action="DeleteReview" method="post" style="display: inline;"
+                                              onsubmit="return confirm('Удалить этот отзыв?');">
+                                            <input type="hidden" name="id" value="@review.Id" />
+                                            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer;">
+                                                <i class="fas fa-trash"></i> Удалить
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Рейтинг звездами -->
+                                <div style="margin-bottom: 15px;">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= review.Rating)
+                                        {
+                                            <i class="fas fa-star" style="color: #ffc107;"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-star" style="color: #ddd;"></i>
+                                        }
+                                    }
+                                    <span style="margin-left: 10px; color: #666; font-size: 14px;">
+                                        @review.CreatedAt.ToString("dd.MM.yyyy")
+                                    </span>
+                                </div>
+
+                                <!-- Текст отзыва -->
+                                @if (!string.IsNullOrEmpty(review.Comment))
+                                {
+                                    <p style="color: #666; line-height: 1.6;">@review.Comment</p>
+                                }
+                                else
+                                {
+                                    <p style="color: #999; font-style: italic;">Без комментария</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
+                <i class="fas fa-star" style="font-size: 48px; color: #ccc; margin-bottom: 20px;"></i>
+                <p style="color: #999; font-size: 18px; margin-bottom: 20px;">У вас пока нет отзывов</p>
+                <a href="/catalog.html" style="padding: 12px 30px; background: #ff5b00; color: white; border-radius: 25px; text-decoration: none;">
+                    Перейти в каталог
+                </a>
+            </div>
+        }
+    </div>
+</div>

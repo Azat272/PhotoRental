@@ -1,0 +1,267 @@
+﻿@model PhotoRental.Models.HomeViewModel
+
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<!-- Подключаем Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<!-- Hero секция -->
+<section class="hero" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 120px 0 80px;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div class="hero-content" style="display: flex; align-items: center; gap: 50px;">
+            <div class="hero-text" style="flex: 1;">
+                <h1 style="font-size: 48px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; color: #212529;">Аренда фото- и видеотехники</h1>
+                <p style="font-size: 18px; color: #6c757d; margin-bottom: 30px; max-width: 500px;">
+                    Профессиональное оборудование для ваших проектов.
+                    Камеры, объективы, свет и стабилизация с доставкой по всей России.
+                </p>
+                <div style="display: flex; gap: 15px; margin-bottom: 40px;">
+                    <a href="@Url.Action("Index", "Catalog")" style="background: #ff5b00; color: white; padding: 14px 30px; border-radius: 10px; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-search"></i> Перейти в каталог
+                    </a>
+                    <a href="@Url.Action("Index", "Catalog")?sort=popular" style="background: white; color: #333; padding: 14px 30px; border-radius: 10px; text-decoration: none; font-weight: 500; border: 2px solid #eaeaea; display: inline-flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-fire"></i> Популярное
+                    </a>
+                </div>
+                <div style="display: flex; gap: 40px;">
+                    <div>
+                        <span style="font-size: 28px; font-weight: 700; color: #ff5b00;">500+</span>
+                        <span style="display: block; color: #6c757d;">Единиц техники</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 28px; font-weight: 700; color: #ff5b00;">24/7</span>
+                        <span style="display: block; color: #6c757d;">Поддержка</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 28px; font-weight: 700; color: #ff5b00;">1000+</span>
+                        <span style="display: block; color: #6c757d;">Довольных клиентов</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image" style="flex: 1; position: relative;">
+                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                     alt="Камера" style="width: 100%; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                <div style="position: absolute; bottom: 20px; left: 20px; background: white; padding: 10px 20px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle" style="color: #ff5b00;"></i> Профессиональное оборудование
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Категории из БД (кликабельные) -->
+<section style="padding: 80px 0;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div style="text-align: center; margin-bottom: 50px;">
+            <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px; color: #212529;">Категории</h2>
+            <p style="font-size: 18px; color: #6c757d;">Выберите необходимое оборудование</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+            @foreach (var category in Model.Categories)
+            {
+                <a href="@Url.Action("Index", "Catalog", new { categoryId = category.Id })" style="text-decoration: none; color: inherit;">
+                    <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: center; transition: all 0.3s ease; cursor: pointer; border: 1px solid #eaeaea;">
+                        <div style="width: 70px; height: 70px; background: #fff5f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="fas fa-camera-retro" style="font-size: 30px; color: #ff5b00;"></i>
+                        </div>
+                        <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">@category.Name</h3>
+                        <p style="color: #6c757d; margin-bottom: 20px;">@category.Description</p>
+                        <span style="color: #ff5b00; font-weight: 500; display: inline-flex; align-items: center; gap: 5px;">
+                            Смотреть <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Популярные товары из БД -->
+<section style="padding: 80px 0; background: #f8f9fa;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div style="text-align: center; margin-bottom: 50px;">
+            <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px; color: #212529;">Популярное оборудование</h2>
+            <p style="font-size: 18px; color: #6c757d;">Самое востребованное у наших клиентов</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <div style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1px solid #eaeaea;">
+                    <a href="@Url.Action("Details", "Catalog", new { id = product.Id })" style="text-decoration: none; color: inherit;">
+                        <div style="position: relative; padding-top: 60%; overflow: hidden;">
+                            <img src="@(product.ImageUrl ?? "https://via.placeholder.com/300x200")" alt="@product.Name"
+                                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                            @if (product.IsAvailable == false)
+                            {
+                                <div style="position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                                    Нет в наличии
+                                </div>
+                            }
+                        </div>
+                    </a>
+                    <div style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <a href="@Url.Action("Details", "Catalog", new { id = product.Id })" style="text-decoration: none; color: inherit;">
+                                <h3 style="font-size: 18px; font-weight: 600; margin: 0;">@product.Name</h3>
+                            </a>
+                            <span style="background: #fff5f0; color: #ff5b00; padding: 5px 10px; border-radius: 5px; font-size: 12px;">@product.Brand</span>
+                        </div>
+                        
+                        <!-- ОПИСАНИЕ В 1 СТРОКУ С ТРОЕТОЧИЕМ -->
+                        <a href="@Url.Action("Details", "Catalog", new { id = product.Id })" style="text-decoration: none; color: inherit;">
+                            <p style="color: #6c757d; font-size: 14px; margin-bottom: 15px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;">
+                                @product.Description
+                            </p>
+                        </a>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <span style="font-size: 20px; font-weight: 700; color: #ff5b00;">@product.PricePerDay.ToString("C2")</span>
+                                <span style="color: #6c757d; font-size: 14px;">/день</span>
+                            </div>
+                            @if (product.PricePerWeek.HasValue)
+                            {
+                                <span style="color: #28a745; font-size: 14px;">@product.PricePerWeek.Value.ToString("C2")/нед</span>
+                            }
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <a href="@Url.Action("Details", "Catalog", new { id = product.Id })" style="flex: 1; background: #ff5b00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 500;">
+                                Подробнее
+                            </a>
+                            <button onclick="addToCart(@product.Id, '@product.Name', '@product.ImageUrl', @product.PricePerDay)"
+                                    style="width: 45px; height: 45px; background: white; border: 2px solid #eaeaea; border-radius: 8px; color: #ff5b00; cursor: pointer; transition: all 0.3s ease;">
+                                <i class="fas fa-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Преимущества -->
+<section style="padding: 80px 0;">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div style="text-align: center; margin-bottom: 50px;">
+            <h2 style="font-size: 36px; font-weight: 700; margin-bottom: 15px; color: #212529;">Почему выбирают нас</h2>
+            <p style="font-size: 18px; color: #6c757d;">Надежность и качество обслуживания</p>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+            <div style="text-align: center; padding: 30px;">
+                <div style="width: 80px; height: 80px; background: #fff5f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-shield-alt" style="font-size: 35px; color: #ff5b00;"></i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Страховка включена</h3>
+                <p style="color: #6c757d;">Все оборудование застраховано на время аренды</p>
+            </div>
+            <div style="text-align: center; padding: 30px;">
+                <div style="width: 80px; height: 80px; background: #fff5f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-truck" style="font-size: 35px; color: #ff5b00;"></i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Бесплатная доставка</h3>
+                <p style="color: #6c757d;">При заказе от 3 дней</p>
+            </div>
+            <div style="text-align: center; padding: 30px;">
+                <div style="width: 80px; height: 80px; background: #fff5f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-clock" style="font-size: 35px; color: #ff5b00;"></i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Гибкие сроки</h3>
+                <p style="color: #6c757d;">От 1 дня до нескольких месяцев</p>
+            </div>
+            <div style="text-align: center; padding: 30px;">
+                <div style="width: 80px; height: 80px; background: #fff5f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-wrench" style="font-size: 35px; color: #ff5b00;"></i>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Техподдержка 24/7</h3>
+                <p style="color: #6c757d;">Помощь в настройке оборудования</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        function addToCart(productId, productName, imageUrl, price) {
+            // Проверяем, авторизован ли пользователь
+            $.ajax({
+                url: '/Account/GetAuthStatus',
+                type: 'GET',
+                success: function(authData) {
+                    if (authData.isAuthenticated) {
+                        // Если авторизован - добавляем в корзину
+                        $.ajax({
+                            url: '/Cart/AddToCart',
+                            type: 'POST',
+                            data: {
+                                productId: productId,
+                                quantity: 1
+                            },
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    // Обновляем счетчик корзины
+                                    $('#cartCount').text(response.cartCount);
+                                    
+                                    // Показываем уведомление
+                                    showNotification('Товар добавлен в корзину', 'success');
+                                } else {
+                                    showNotification(response.message || 'Ошибка при добавлении', 'error');
+                                }
+                            },
+                            error: function() {
+                                showNotification('Ошибка при добавлении в корзину', 'error');
+                            }
+                        });
+                    } else {
+                        // Если не авторизован - предлагаем войти
+                        if (confirm('Для добавления товара в корзину необходимо авторизоваться. Перейти на страницу входа?')) {
+                            window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showNotification(message, type) {
+            // Удаляем старые уведомления
+            $('.notification').remove();
+            
+            const notification = $('<div class="notification"></div>');
+            
+            if (type === 'success') {
+                notification.css('border-left-color', '#28a745');
+                notification.html('<i class="fas fa-check-circle" style="color: #28a745;"></i>' + message);
+            } else {
+                notification.css('border-left-color', '#dc3545');
+                notification.html('<i class="fas fa-exclamation-circle" style="color: #dc3545;"></i>' + message);
+            }
+            
+            $('body').append(notification);
+            
+            setTimeout(() => {
+                notification.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+        
+        // Обновляем счетчик корзины при загрузке страницы
+        $(document).ready(function() {
+            $.ajax({
+                url: '/Cart/GetCartCount',
+                type: 'GET',
+                success: function(data) {
+                    $('#cartCount').text(data.count || 0);
+                }
+            });
+        });
+    </script>
+}

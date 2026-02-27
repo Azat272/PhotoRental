@@ -1,0 +1,607 @@
+﻿@model PhotoRental.Models.Admin.ProductViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Редактирование товара";
+    
+    // Получаем список дополнительных изображений из модели
+    var additionalImages = new List<string>();
+    if (!string.IsNullOrEmpty(Model.AdditionalImagesJson))
+    {
+        try
+        {
+            additionalImages = JsonSerializer.Deserialize<List<string>>(Model.AdditionalImagesJson) ?? new List<string>();
+        }
+        catch
+        {
+            additionalImages = new List<string>();
+        }
+    }
+}
+
+<!-- Подключаем общие стили для админки -->
+<link rel="stylesheet" href="~/css/admin.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    .btn-primary:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+        .btn-primary:disabled:hover {
+            background: #ccc;
+        }
+    
+    .validation-summary-errors {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+        .validation-summary-errors i {
+            color: #dc3545;
+            font-size: 20px;
+        }
+    
+        .validation-summary-errors #errorMessages p {
+            margin: 5px 0;
+        }
+    
+    .images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .image-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+        .image-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+    
+        .image-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+    
+            .image-item .delete-btn:hover {
+                background: #c82333;
+                transform: scale(1.1);
+            }
+    
+        .image-item .main-badge {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: #ff5b00;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+</style>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">Редактирование товара</h1>
+        <div style="display: flex; gap: 10px;">
+            <a href="@Url.Action("Products")" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+            
+            <!-- Кнопка удаления -->
+            <form action="/Admin/DeleteProduct" method="post" style="display: inline;"
+                  onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    
+    <div class="admin-card">
+        <form action="/Admin/EditProduct" method="post" enctype="multipart/form-data" id="productForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@Model.Id" />
+            
+            <!-- Блок ошибок -->
+            <div id="validationSummary" class="validation-summary-errors" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i>
+                <div id="errorMessages"></div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="Name" class="form-label required-field">Название товара</label>
+                    <input type="text" name="Name" class="form-control" placeholder="Например: Sony A7 IV" id="Name" value="@Model.Name" />
+                    <span id="Name-error" class="field-validation-error" style="display: none;"></span>
+                </div>
+    
+                <div class="form-group">
+                    <label for="Brand" class="form-label required-field">Бренд</label>
+                    <input type="text" name="Brand" class="form-control" placeholder="Например: Sony, Canon, Nikon" id="Brand" value="@Model.Brand" />
+                    <span id="Brand-error" class="field-validation-error" style="display: none;"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="Description" class="form-label required-field">Описание</label>
+                <textarea name="Description" class="form-control" rows="5" placeholder="Подробное описание товара..." id="Description">@Model.Description</textarea>
+                <span id="Description-error" class="field-validation-error" style="display: none;"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="PricePerDay" class="form-label required-field">Цена за день (₽)</label>
+                    <div class="price-input-group">
+                        <input type="text" name="PricePerDay" class="form-control" placeholder="3000" id="PricePerDay" value="@((int)Model.PricePerDay)" />
+                        <span class="currency">₽</span>
+                    </div>
+                    <span id="PricePerDay-error" class="field-validation-error" style="display: none;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="PricePerWeek" class="form-label">Цена за неделю (₽)</label>
+                    <div class="price-input-group">
+                        <input type="text" name="PricePerWeek" class="form-control" placeholder="18000" id="PricePerWeek" value="@(Model.PricePerWeek.HasValue ? ((int)Model.PricePerWeek.Value).ToString() : "")" />
+                        <span class="currency">₽</span>
+                    </div>
+                    <span id="PricePerWeek-error" class="field-validation-error" style="display: none;"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="Deposit" class="form-label required-field">Залог (₽)</label>
+                    <div class="price-input-group">
+                        <input type="text" name="Deposit" class="form-control" placeholder="15000" id="Deposit" value="@((int)Model.Deposit)" />
+                        <span class="currency">₽</span>
+                    </div>
+                    <span id="Deposit-error" class="field-validation-error" style="display: none;"></span>
+                </div>
+            </div>
+    
+            <div class="form-group">
+                <label for="CategoryId" class="form-label required-field">Категория</label>
+                <select name="CategoryId" class="form-select" id="CategoryId">
+                    <option value="">-- Выберите категорию --</option>
+                    @if (Model.Categories != null)
+                    {
+                        foreach (var category in Model.Categories)
+                        {
+                            if (category.Id == Model.CategoryId)
+                            {
+                                <option value="@category.Id" selected="selected">@category.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        }
+                    }
+                </select>
+                <span id="CategoryId-error" class="field-validation-error" style="display: none;"></span>
+            </div>
+            
+            <!-- БЛОК ИЗОБРАЖЕНИЙ -->
+            <div style="margin: 30px 0;">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Изображения товара</h3>
+                
+                <!-- Текущее главное изображение -->
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div style="margin-bottom: 25px;">
+                        <p style="font-weight: 500; margin-bottom: 10px;">Главное изображение:</p>
+                        <div style="position: relative; display: inline-block;">
+                            <img src="@Model.ImageUrl" alt="@Model.Name" style="max-width: 200px; border-radius: 10px; border: 2px solid #ff5b00;" id="currentImage" />
+                            <button type="button" onclick="deleteMainImage()" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Существующие дополнительные изображения -->
+                @if (Model.ExistingAdditionalImages != null && Model.ExistingAdditionalImages.Any())
+                {
+                    <div style="margin-bottom: 25px;">
+                        <p style="font-weight: 500; margin-bottom: 10px;">Дополнительные изображения:</p>
+                        <div class="images-grid" id="additionalImagesContainer">
+                            @for (int i = 0; i < Model.ExistingAdditionalImages.Count; i++)
+                            {
+                                <div class="image-item" data-url="@Model.ExistingAdditionalImages[i]">
+                                    <img src="@Model.ExistingAdditionalImages[i]" alt="Дополнительное изображение" />
+                                    <button type="button" class="delete-btn" onclick="deleteAdditionalImage('@Model.ExistingAdditionalImages[i]')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                
+                <hr style="margin: 25px 0; border: none; border-top: 1px solid #eaeaea;" />
+                
+                <!-- Загрузка нового главного изображения -->
+                <div class="form-group">
+                    <label for="ImageFile" class="form-label">Заменить главное изображение</label>
+                    <input type="file" name="ImageFile" class="form-control" accept="image/*" id="imageFile" />
+                    <span id="ImageFile-error" class="field-validation-error" style="display: none;"></span>
+                    <small class="input-hint">Выберите файл для замены главного изображения</small>
+                </div>
+                
+                <!-- Загрузка новых дополнительных изображений -->
+                <div class="form-group">
+                    <label class="form-label">Добавить новые дополнительные изображения</label>
+                    <input type="file" name="AdditionalImageFiles" class="form-control" accept="image/*" multiple id="additionalImages" />
+                    <small class="input-hint">Можно выбрать несколько файлов (Ctrl+Click)</small>
+                </div>
+
+                <!-- Превью новых дополнительных изображений -->
+                <div id="additionalImagesPreview" class="images-grid"></div>
+                
+                <!-- Или указать URL изображения -->
+                <div class="form-group">
+                    <label for="ImageUrl" class="form-label">Или укажите URL изображения</label>
+                    <input type="text" name="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" id="imageUrl" value="@Model.ImageUrl" />
+                    <span id="ImageUrl-error" class="field-validation-error" style="display: none;"></span>
+                </div>
+            </div>
+            
+            <!-- Чекбокс доступности -->
+            <div class="form-group checkbox-group">
+                <input type="checkbox" name="IsAvailable" id="IsAvailable" value="true" @(Model.IsAvailable ? "checked" : "") />
+                <input type="hidden" name="IsAvailable" value="false" />
+                <label for="IsAvailable">Товар доступен для аренды</label>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 30px;">
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                    <i class="fas fa-save"></i> Сохранить изменения
+                </button>
+                <a href="@Url.Action("Products")" class="btn btn-outline">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Массив для хранения URL удаленных дополнительных изображений
+            let deletedAdditionalImages = [];
+            let mainImageDeleted = false;
+            
+            // Функция удаления главного изображения
+            window.deleteMainImage = function() {
+                if (confirm('Удалить главное изображение?')) {
+                    const container = document.querySelector('#currentImage')?.parentElement;
+                    if (container) {
+                        container.style.display = 'none';
+                        mainImageDeleted = true;
+                        
+                        // Добавляем скрытое поле для отметки удаления главного изображения
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'DeleteMainImage';
+                        input.value = 'true';
+                        document.getElementById('productForm').appendChild(input);
+                    }
+                }
+            };
+            
+            // Функция удаления существующего дополнительного изображения
+            window.deleteAdditionalImage = function(imageUrl) {
+                if (confirm('Удалить это изображение?')) {
+                    // Находим все элементы с таким URL
+                    const containers = document.querySelectorAll(`.image-item img[src="${imageUrl}"]`);
+                    containers.forEach(img => {
+                        const container = img.closest('.image-item');
+                        if (container) {
+                            container.style.display = 'none';
+                        }
+                    });
+                    
+                    // Добавляем URL в список удаленных
+                    deletedAdditionalImages.push(imageUrl);
+                    
+                    // Обновляем скрытое поле
+                    updateDeletedImagesField();
+                }
+            };
+            
+            // Обновление скрытого поля с удаленными изображениями
+            function updateDeletedImagesField() {
+                // Удаляем старое поле если есть
+                const oldField = document.querySelector('input[name="DeletedAdditionalImages"]');
+                if (oldField) oldField.remove();
+                
+                // Создаем новое поле с массивом удаленных изображений
+                if (deletedAdditionalImages.length > 0) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'DeletedAdditionalImages';
+                    input.value = JSON.stringify(deletedAdditionalImages);
+                    document.getElementById('productForm').appendChild(input);
+                }
+            }
+            
+            // Превью для новых дополнительных изображений
+            const additionalImagesInput = document.getElementById('additionalImages');
+            if (additionalImagesInput) {
+                additionalImagesInput.addEventListener('change', function(e) {
+                    const previewContainer = document.getElementById('additionalImagesPreview');
+                    previewContainer.innerHTML = '';
+                    
+                    for (let i = 0; i < this.files.length; i++) {
+                        const file = this.files[i];
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const previewDiv = document.createElement('div');
+                            previewDiv.className = 'image-item';
+                            previewDiv.innerHTML = `
+                                <img src="${e.target.result}" style="width: 100%; height: 120px; object-fit: cover;" />
+                                <button type="button" class="delete-btn" onclick="this.parentElement.remove()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            previewContainer.appendChild(previewDiv);
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            
+            // Валидация формы
+            const form = document.getElementById('productForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const nameInput = document.getElementById('Name');
+            const brandInput = document.getElementById('Brand');
+            const descriptionInput = document.getElementById('Description');
+            const pricePerDayInput = document.getElementById('PricePerDay');
+            const depositInput = document.getElementById('Deposit');
+            const categorySelect = document.getElementById('CategoryId');
+            
+            const nameError = document.getElementById('Name-error');
+            const brandError = document.getElementById('Brand-error');
+            const descriptionError = document.getElementById('Description-error');
+            const pricePerDayError = document.getElementById('PricePerDay-error');
+            const depositError = document.getElementById('Deposit-error');
+            const categoryError = document.getElementById('CategoryId-error');
+            
+            function isValidInteger(value) {
+                const cleaned = value.trim();
+                return /^\d+$/.test(cleaned);
+            }
+            
+            function isFieldFilled(input) {
+                return input && input.value && input.value.trim() !== '';
+            }
+            
+            function checkFormValidity() {
+                let isValid = true;
+                let errorMessages = [];
+                
+                // Название
+                if (!isFieldFilled(nameInput)) {
+                    nameInput.classList.add('error');
+                    nameError.textContent = 'Введите название товара';
+                    nameError.style.display = 'block';
+                    errorMessages.push('Введите название товара');
+                    isValid = false;
+                } else {
+                    nameInput.classList.remove('error');
+                    nameError.style.display = 'none';
+                }
+                
+                // Бренд
+                if (!isFieldFilled(brandInput)) {
+                    brandInput.classList.add('error');
+                    brandError.textContent = 'Введите бренд';
+                    brandError.style.display = 'block';
+                    errorMessages.push('Введите бренд');
+                    isValid = false;
+                } else {
+                    brandInput.classList.remove('error');
+                    brandError.style.display = 'none';
+                }
+                
+                // Описание
+                if (!isFieldFilled(descriptionInput)) {
+                    descriptionInput.classList.add('error');
+                    descriptionError.textContent = 'Введите описание';
+                    descriptionError.style.display = 'block';
+                    errorMessages.push('Введите описание');
+                    isValid = false;
+                } else {
+                    descriptionInput.classList.remove('error');
+                    descriptionError.style.display = 'none';
+                }
+                
+                // Цена за день
+                if (!isFieldFilled(pricePerDayInput)) {
+                    pricePerDayInput.classList.add('error');
+                    pricePerDayError.textContent = 'Введите цену за день';
+                    pricePerDayError.style.display = 'block';
+                    errorMessages.push('Введите цену за день');
+                    isValid = false;
+                } else if (!isValidInteger(pricePerDayInput.value)) {
+                    pricePerDayInput.classList.add('error');
+                    pricePerDayError.textContent = 'Введите целое число (без копеек)';
+                    pricePerDayError.style.display = 'block';
+                    errorMessages.push('Введите целое число для цены');
+                    isValid = false;
+                } else {
+                    pricePerDayInput.classList.remove('error');
+                    pricePerDayError.style.display = 'none';
+                }
+                
+                // Залог
+                if (!isFieldFilled(depositInput)) {
+                    depositInput.classList.add('error');
+                    depositError.textContent = 'Введите залог';
+                    depositError.style.display = 'block';
+                    errorMessages.push('Введите залог');
+                    isValid = false;
+                } else if (!isValidInteger(depositInput.value)) {
+                    depositInput.classList.add('error');
+                    depositError.textContent = 'Введите целое число (без копеек)';
+                    depositError.style.display = 'block';
+                    errorMessages.push('Введите целое число для залога');
+                    isValid = false;
+                } else {
+                    depositInput.classList.remove('error');
+                    depositError.style.display = 'none';
+                }
+                
+                // Категория
+                if (!categorySelect.value) {
+                    categorySelect.classList.add('error');
+                    categoryError.textContent = 'Выберите категорию';
+                    categoryError.style.display = 'block';
+                    errorMessages.push('Выберите категорию');
+                    isValid = false;
+                } else {
+                    categorySelect.classList.remove('error');
+                    categoryError.style.display = 'none';
+                }
+                
+                // Блок ошибок
+                const summary = document.getElementById('validationSummary');
+                const errorContainer = document.getElementById('errorMessages');
+                
+                if (errorMessages.length > 0 && summary && errorContainer) {
+                    let errorHtml = '';
+                    errorMessages.forEach(error => {
+                        errorHtml += `<p>• ${error}</p>`;
+                    });
+                    errorContainer.innerHTML = errorHtml;
+                    summary.style.display = 'flex';
+                } else if (summary) {
+                    summary.style.display = 'none';
+                }
+                
+                submitBtn.disabled = !isValid;
+                return isValid;
+            }
+            
+            // Обработчики для числовых полей
+            [pricePerDayInput, depositInput].forEach(input => {
+                if (input) {
+                    input.addEventListener('input', function(e) {
+                        this.value = this.value.replace(/[^\d]/g, '');
+                        checkFormValidity();
+                    });
+                    
+                    input.addEventListener('keydown', function(e) {
+                        if ([46, 8, 9, 27, 13].includes(e.keyCode) ||
+                            (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                            (e.keyCode === 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+                            (e.keyCode === 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+                            (e.keyCode === 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+                            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                            return;
+                        }
+                        
+                        if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === 'e' || e.key === 'E') {
+                            e.preventDefault();
+                        }
+                        
+                        const key = e.key;
+                        if (key.length === 1 && !/[0-9]/.test(key)) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+            });
+            
+            // Обработчики для текстовых полей
+            [nameInput, brandInput, descriptionInput].forEach(input => {
+                if (input) {
+                    input.addEventListener('input', checkFormValidity);
+                    input.addEventListener('blur', checkFormValidity);
+                }
+            });
+            
+            if (categorySelect) {
+                categorySelect.addEventListener('change', checkFormValidity);
+            }
+            
+            // Отправка формы
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    if (pricePerDayInput) {
+                        pricePerDayInput.value = pricePerDayInput.value.replace(/[^\d]/g, '');
+                    }
+                    if (depositInput) {
+                        depositInput.value = depositInput.value.replace(/[^\d]/g, '');
+                    }
+                    
+                    if (!checkFormValidity()) {
+                        event.preventDefault();
+                        const firstError = document.querySelector('.error');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                });
+            }
+            
+            // Первоначальная проверка
+            if (pricePerDayInput) {
+                pricePerDayInput.value = pricePerDayInput.value.replace(/[^\d]/g, '');
+            }
+            if (depositInput) {
+                depositInput.value = depositInput.value.replace(/[^\d]/g, '');
+            }
+            
+            checkFormValidity();
+        });
+    </script>
+}

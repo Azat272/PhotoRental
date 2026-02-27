@@ -1,0 +1,259 @@
+﻿@model PhotoRental.ViewModels.RegisterViewModel
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+<div class="form-container">
+    <h1 class="form-title">Регистрация</h1>
+    
+    <div class="form-subtitle">Создайте аккаунт для доступа к аренде</div>
+
+    <!-- Блок для общих ошибок (например, email уже существует) -->
+    @if (ViewData.ModelState[""]?.Errors.Count > 0)
+    {
+        <div class="validation-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <div class="error-content">
+                @foreach (var error in ViewData.ModelState[""].Errors)
+                {
+                    <p>@error.ErrorMessage</p>
+                }
+            </div>
+        </div>
+    }
+
+    <form method="post" asp-action="Register" class="auth-form" id="registerForm">
+        <!-- Email -->
+        <div class="input-group">
+            <label class="input-label">
+                <i class="fas fa-envelope"></i>
+                Email
+            </label>
+            <input type="email"
+                   name="Email"
+                   value="@Model?.Email"
+                   class="form-input"
+                   placeholder="example@mail.com"
+                   required
+                   id="Email" />
+            <div id="emailError" class="field-validation-error" style="display: none;"></div>
+        </div>
+
+        <!-- Полное имя -->
+        <div class="input-group">
+            <label class="input-label">
+                <i class="fas fa-user"></i>
+                Полное имя
+            </label>
+            <input type="text"
+                   name="FullName"
+                   value="@Model?.FullName"
+                   class="form-input"
+                   placeholder="Иван Петров"
+                   required
+                   id="FullName" />
+            <div id="nameError" class="field-validation-error" style="display: none;"></div>
+        </div>
+
+        <!-- Пароль -->
+        <div class="input-group">
+            <label class="input-label">
+                <i class="fas fa-lock"></i>
+                Пароль
+            </label>
+            <input type="password"
+                   name="Password"
+                   class="form-input"
+                   placeholder="••••••••"
+                   required
+                   id="Password" />
+            <div id="passwordError" class="field-validation-error" style="display: none;"></div>
+        </div>
+
+        <!-- Подтверждение пароля -->
+        <div class="input-group">
+            <label class="input-label">
+                <i class="fas fa-lock"></i>
+                Подтвердите пароль
+            </label>
+            <input type="password"
+                   name="PasswordConfirm"
+                   class="form-input"
+                   placeholder="••••••••"
+                   required
+                   id="PasswordConfirm" />
+            <div id="passwordMatchError" class="field-validation-error"></div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            <i class="fas fa-user-plus"></i>
+            Зарегистрироваться
+        </button>
+
+        <div class="form-footer">
+            <p>Уже есть аккаунт? <a asp-action="Login" class="form-link">Войти</a></p>
+        </div>
+    </form>
+</div>
+
+<!-- Добавляем стили для ошибок прямо на страницу -->
+<style>
+    .field-validation-error {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 5px;
+        padding-left: 5px;
+        font-weight: 500;
+        display: block;
+    }
+    
+    .input-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-input.error {
+        border-color: #dc3545 !important;
+        background-color: #fff8f8;
+    }
+    
+    .form-input.valid {
+        border-color: #28a745 !important;
+    }
+    
+    .validation-error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+        .validation-error i {
+            color: #dc3545;
+            font-size: 20px;
+        }
+    
+        .validation-error .error-content p {
+            color: #dc3545;
+            margin: 0;
+            font-size: 14px;
+        }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем элементы
+            const newPassword = document.getElementById('NewPassword');
+            const confirmPassword = document.getElementById('ConfirmPassword');
+            const form = document.getElementById('changePasswordForm');
+
+            const passwordMatchMessage = document.getElementById('passwordMatchMessage');
+
+            const strength1 = document.getElementById('strength-1');
+            const strength2 = document.getElementById('strength-2');
+            const strength3 = document.getElementById('strength-3');
+            const strengthText = document.getElementById('strength-text');
+
+            const reqLength = document.getElementById('req-length');
+            const reqDigit = document.getElementById('req-digit');
+            const reqLower = document.getElementById('req-lower');
+            const reqUpper = document.getElementById('req-upper');
+
+            const reqLengthIcon = document.getElementById('req-length-icon');
+            const reqDigitIcon = document.getElementById('req-digit-icon');
+            const reqLowerIcon = document.getElementById('req-lower-icon');
+            const reqUpperIcon = document.getElementById('req-upper-icon');
+
+            // Функция проверки сложности пароля (ТОЛЬКО ДЛЯ ВИЗУАЛА)
+            function checkPasswordStrength() {
+                const val = newPassword.value;
+
+                const lengthValid = val.length >= 6;
+                const digitValid = /\d/.test(val);
+                const lowerValid = /[a-z]/.test(val);
+                const upperValid = /[A-Z]/.test(val);
+
+                updateRequirement(reqLength, reqLengthIcon, lengthValid);
+                updateRequirement(reqDigit, reqDigitIcon, digitValid);
+                updateRequirement(reqLower, reqLowerIcon, lowerValid);
+                updateRequirement(reqUpper, reqUpperIcon, upperValid);
+
+                let strength = 0;
+                if (lengthValid) strength++;
+                if (digitValid) strength++;
+                if (lowerValid) strength++;
+                if (upperValid) strength++;
+
+                const colors = ['#eaeaea', '#dc3545', '#ffc107', '#28a745', '#28a745'];
+                const texts = ['', 'Очень слабый', 'Слабый', 'Средний', 'Надёжный'];
+
+                const displayLevel = Math.min(strength, 3);
+
+                strength1.style.background = displayLevel >= 1 ? colors[strength] : '#eaeaea';
+                strength2.style.background = displayLevel >= 2 ? colors[strength] : '#eaeaea';
+                strength3.style.background = displayLevel >= 3 ? colors[strength] : '#eaeaea';
+
+                strengthText.textContent = texts[strength];
+                strengthText.style.color = strength >= 3 ? '#28a745' : (strength >= 2 ? '#ffc107' : '#dc3545');
+            }
+
+            function updateRequirement(element, icon, isValid) {
+                if (isValid) {
+                    element.style.color = '#28a745';
+                    icon.innerHTML = '✅';
+                } else {
+                    element.style.color = '#dc3545';
+                    icon.innerHTML = '❌';
+                }
+            }
+
+            // Функция проверки совпадения паролей
+            function checkPasswordMatch() {
+                if (confirmPassword.value.length > 0) {
+                    const match = newPassword.value === confirmPassword.value;
+
+                    if (match) {
+                        passwordMatchMessage.innerHTML = '✅ Пароли совпадают';
+                        passwordMatchMessage.style.color = '#28a745';
+                        confirmPassword.style.borderColor = '#28a745';
+                    } else {
+                        passwordMatchMessage.innerHTML = '❌ Пароли не совпадают';
+                        passwordMatchMessage.style.color = '#dc3545';
+                        confirmPassword.style.borderColor = '#dc3545';
+                    }
+
+                    passwordMatchMessage.style.display = 'block';
+                    return match;
+                } else {
+                    passwordMatchMessage.style.display = 'none';
+                    confirmPassword.style.borderColor = '#eaeaea';
+                    return false;
+                }
+            }
+
+            // Добавляем обработчики (ТОЛЬКО ДЛЯ ВИЗУАЛА, НЕ БЛОКИРУЕМ ОТПРАВКУ)
+            newPassword.addEventListener('input', function() {
+                checkPasswordStrength();
+                if (confirmPassword.value.length > 0) {
+                    checkPasswordMatch();
+                }
+            });
+
+            confirmPassword.addEventListener('input', checkPasswordMatch);
+
+            // УБИРАЕМ БЛОКИРОВКУ ОТПРАВКИ ФОРМЫ
+            // Форма теперь будет отправляться всегда,
+            // а сервер сам проверит валидность данных
+        });
+    </script>
+}

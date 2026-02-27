@@ -1,0 +1,18 @@
+{
+    "version": "1.0",
+    "defaultProvider": "cdnjs",
+    "libraries": [
+        
+{
+  "provider": "unpkg",
+  "library": "jquery-validation@1.19.5",
+  "destination": "wwwroot/lib/jquery-validation/"
+}
+,
+{
+  "provider": "unpkg",
+  "library": "jquery@3.6.0",
+  "destination": "wwwroot/lib/jquery/"
+}
+]
+}
